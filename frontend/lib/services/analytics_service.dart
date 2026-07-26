@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 import '../config/constants.dart';
 
@@ -46,15 +47,11 @@ class AnalyticsService {
 
     try {
       for (final event in events) {
-        final uri = Uri.parse('${AppConfig.apiUrl}/analytics');
-        await HttpClient()
-            .postUrl(uri)
-            .then((req) {
-              req.headers.set('Content-Type', 'application/json');
-              req.write(jsonEncode(event));
-              return req.close();
-            })
-            .then((res) => res.drain());
+        await http.post(
+          Uri.parse('${AppConfig.apiUrl}/analytics'),
+          headers: {'Content-Type': 'application/json'},
+          body: jsonEncode(event),
+        ).timeout(const Duration(seconds: 5));
       }
     } catch (_) {
       _queue.addAll(events);
