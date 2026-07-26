@@ -60,7 +60,7 @@ class SpotProvider extends ChangeNotifier {
       final data = await _api.getSpot(id);
       _currentSpot = Spot.fromJson(data);
       final raw = await _api.getComentarios(id);
-      _comentarios = raw.cast<Map<String, dynamic>>();
+      _comentarios = raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
     } catch (e) {
       _error = 'Error al cargar spot';
     }
@@ -155,7 +155,8 @@ class SpotProvider extends ChangeNotifier {
     try {
       if (await OfflineQueue.hayConexion()) {
         await _api.comentar(spotId, contenido);
-        _comentarios = await _api.getComentarios(spotId);
+        final raw = await _api.getComentarios(spotId);
+        _comentarios = raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
       } else {
         await OfflineQueue.encolar('comentario', {'spot_id': spotId, 'contenido': contenido});
       }
