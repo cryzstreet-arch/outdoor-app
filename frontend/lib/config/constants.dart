@@ -26,7 +26,7 @@ class AppIcons {
   static const camping = Icons.cabin_outlined;
   static const escalada = Icons.terrain_outlined;
   static const kayak = Icons.kayaking_outlined;
-  static const observacion = Icons.binoculars_outlined;
+  static const observacion = Icons.remove_red_eye_outlined;
   static const mirador = Icons.landscape_outlined;
   static const natural = Icons.forest_outlined;
   static const running = Icons.directions_run_outlined;

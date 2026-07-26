@@ -11,6 +11,7 @@ import '../widgets/skeuomorphic_text_field.dart';
 import '../widgets/particle_overlay.dart';
 import '../widgets/glass_panel.dart';
 import '../widgets/glass_app_bar.dart';
+import '../widgets/shimmer_loading.dart';
 import '../utils/page_transitions.dart';
 import '../services/analytics_service.dart';
 import 'package:cached_network_image/cached_network_image.dart';
