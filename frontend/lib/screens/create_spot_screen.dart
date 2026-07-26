@@ -33,7 +33,6 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
   double? _startLat;
   double? _startLng;
 
-  // Mock coordinates (en producción usar GPS del teléfono)
   double _lat = -34.6037;
   double _lng = -58.3816;
 
@@ -53,8 +52,14 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
         permission = await Geolocator.requestPermission();
         if (permission == LocationPermission.denied) return;
       }
-      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
-      if (mounted) setState(() { _lat = pos.latitude; _lng = pos.longitude; });
+      if (permission == LocationPermission.deniedForever) return;
+      final pos = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.high,
+      ).catchError((e) {
+        print('GPS create spot error: $e');
+        return null;
+      });
+      if (mounted && pos != null) setState(() { _lat = pos.latitude; _lng = pos.longitude; });
     } catch (_) {}
   }
 
@@ -76,7 +81,7 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      appBar: GlassAppBar(title: 'Nuevo Spot'),
+      appBar: const GlassAppBar(title: 'Nuevo Spot'),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -107,7 +112,7 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
                       : Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(Icons.camera_alt, size: 48,
+                            Icon(AppIcons.foto, size: 48,
                               color: AppColors.textoSecundario.withOpacity(0.4)),
                             const SizedBox(height: 8),
                             Text('Tocar para agregar foto',
@@ -121,7 +126,7 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
                 controller: _nombreCtrl,
                 label: 'Nombre del lugar',
                 hint: 'Ej: Río Escondido',
-                icon: Icons.edit_location_alt,
+                icon: AppIcons.editarUbicacion,
                 validator: (v) => (v == null || v.isEmpty) ? 'Nombre requerido' : null,
               ),
               const SizedBox(height: 16),
@@ -129,7 +134,7 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
                 controller: _descCtrl,
                 label: 'Descripción',
                 hint: 'Describe el lugar, cómo llegar, qué encontrarás...',
-                icon: Icons.description_outlined,
+                icon: AppIcons.descripcion,
               ),
               const SizedBox(height: 20),
               Text('Categoría', style: TextStyle(
@@ -177,7 +182,7 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
                 width: double.infinity,
                 child: SkeuomorphicButton(
                   text: 'Publicar Spot',
-                  icon: Icons.add_location_alt,
+                  icon: AppIcons.agregarUbicacion,
                   loading: spotProv.loading,
                   onPressed: _crearSpot,
                 ),
@@ -251,13 +256,13 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             ListTile(
-              leading: Icon(Icons.camera_alt, color: AppColors.primario),
-              title: Text('Cámara'),
+              leading: Icon(AppIcons.foto, color: AppColors.primario),
+              title: const Text('Cámara'),
               onTap: () => Navigator.pop(context, ImageSource.camera),
             ),
             ListTile(
-              leading: Icon(Icons.photo_library, color: AppColors.primario),
-              title: Text('Galería'),
+              leading: Icon(AppIcons.galeria, color: AppColors.primario),
+              title: const Text('Galería'),
               onTap: () => Navigator.pop(context, ImageSource.gallery),
             ),
           ],

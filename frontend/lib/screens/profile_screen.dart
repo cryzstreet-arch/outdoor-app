@@ -5,6 +5,7 @@ import '../providers/auth_provider.dart';
 import 'settings_screen.dart';
 import '../widgets/glass_panel.dart';
 import '../services/analytics_service.dart';
+import '../utils/page_transitions.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -37,7 +38,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: AppColors.primario.withOpacity(0.1),
-                child: Icon(Icons.person, size: 50, color: AppColors.primario),
+                child: const Icon(AppIcons.person, size: 50, color: null),
               ),
             ),
             const SizedBox(height: 12),
@@ -58,7 +59,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(Icons.star, size: 16, color: AppColors.secundario),
+                    const Icon(AppIcons.star, size: 16, color: null),
                     const SizedBox(width: 4),
                     Text('Prime Activo',
                       style: TextStyle(
@@ -84,9 +85,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
-                      _statItem(Icons.explore, '${user?.estadisticas?.totalCheckins ?? 0}', 'Spots'),
-                      _statItem(Icons.straighten, '${user?.estadisticas?.totalKm.toStringAsFixed(1) ?? '0'} km', 'Distancia'),
-                      _statItem(Icons.emoji_events, '${(user?.estadisticas?.totalCheckins ?? 0) ~/ 5}', 'Logros'),
+                      _statItem(AppIcons.checkins, '${user?.estadisticas?.totalCheckins ?? 0}', 'Spots'),
+                      _statItem(AppIcons.km, '${user?.estadisticas?.totalKm.toStringAsFixed(1) ?? '0'} km', 'Distancia'),
+                      _statItem(AppIcons.logros, '${(user?.estadisticas?.totalCheckins ?? 0) ~/ 5}', 'Logros'),
                     ],
                   ),
                   const SizedBox(height: 16),
@@ -108,8 +109,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => Navigator.push(context,
-                  MaterialPageRoute(builder: (_) => const SettingsScreen())),
-                icon: Icon(Icons.settings, color: AppColors.textoSecundario),
+                  SlideUpRoute(page: const SettingsScreen())),
+                icon: const Icon(AppIcons.configuracion, color: null),
                 label: Text('Configuración del servidor',
                   style: TextStyle(color: AppColors.textoSecundario)),
                 style: OutlinedButton.styleFrom(
@@ -125,7 +126,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => auth.logout(),
-                icon: Icon(Icons.logout, color: AppColors.error),
+                icon: Icon(AppIcons.logout, color: AppColors.error),
                 label: Text('Cerrar sesión',
                   style: TextStyle(color: AppColors.error),
                 ),
@@ -164,10 +165,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _difficultyBadge(String label, int count, Color color) {
     return Column(
       children: [
-        GlassPanel(
-          opacity: 0.08,
-          borderRadius: 10,
+        Container(
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+          decoration: BoxDecoration(
+            color: color.withOpacity(0.1),
+            borderRadius: BorderRadius.circular(10),
+          ),
           child: Text(label,
             style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
           ),

@@ -20,12 +20,15 @@ const storage = multer.diskStorage({
   }
 });
 
-const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_MIMES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/octet-stream'];
+const ALLOWED_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 const upload = multer({
   storage,
   limits: { fileSize: 10 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (ALLOWED_MIMES.includes(file.mimetype)) return cb(null, true);
+    const ext = require('path').extname(file.originalname).toLowerCase();
+    if (ALLOWED_EXTS.includes(ext)) return cb(null, true);
     cb(new Error('Solo se permiten imágenes (JPEG, PNG, WebP, GIF)'));
   }
 });

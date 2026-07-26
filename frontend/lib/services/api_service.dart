@@ -4,6 +4,10 @@ import 'package:http/http.dart' as http;
 import '../config/constants.dart';
 
 class ApiService {
+  static final ApiService _instance = ApiService._();
+  factory ApiService() => _instance;
+  ApiService._();
+
   String get baseUrl => AppConfig.apiUrl;
   String? _token;
 

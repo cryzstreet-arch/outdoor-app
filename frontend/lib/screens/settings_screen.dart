@@ -37,7 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      appBar: GlassAppBar(title: 'Configuración del Servidor'),
+      appBar: const GlassAppBar(title: 'Configuración del Servidor'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -50,7 +50,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   blurIntensity: 12,
                   padding: const EdgeInsets.all(20),
                   shadowEnabled: false,
-                  child: Icon(Icons.dns, size: 48, color: AppColors.primario),
+                  child: Icon(AppIcons.dns, size: 48, color: AppColors.primario),
                 ),
               ),
               const SizedBox(height: 16),
@@ -72,7 +72,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 controller: _hostCtrl,
                 label: 'Dirección del servidor (IP o hostname)',
                 hint: '192.168.1.100',
-                icon: Icons.dns,
+                icon: AppIcons.dns,
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Ingresa la dirección del servidor';
                   return null;
@@ -83,7 +83,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 controller: _portCtrl,
                 label: 'Puerto',
                 hint: '3000',
-                icon: Icons.numbers,
+                icon: AppIcons.numeros,
                 validator: (v) {
                   if (v == null || v.isEmpty) return 'Ingresa el puerto';
                   if (int.tryParse(v) == null) return 'Puerto inválido';
@@ -95,7 +95,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 width: double.infinity,
                 child: SkeuomorphicButton(
                   text: 'Guardar y conectar',
-                  icon: Icons.save,
+                  icon: AppIcons.guardar,
                   onPressed: _save,
                 ),
               ),
@@ -105,7 +105,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
                   width: double.infinity,
                   child: SkeuomorphicButton(
                     text: 'Restablecer (auto-detectar)',
-                    icon: Icons.restart_alt,
+                    icon: AppIcons.reiniciar,
                     color: AppColors.secundario,
                     onPressed: _reset,
                   ),
@@ -113,7 +113,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               ],
               const SizedBox(height: 32),
               GlassPanel(
-                opacity: 0.1,
+                useBlur: false,
                 padding: const EdgeInsets.all(16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,

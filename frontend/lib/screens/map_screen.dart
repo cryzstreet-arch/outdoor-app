@@ -14,6 +14,7 @@ import '../widgets/glass_panel.dart';
 import '../config/category_themes.dart';
 import 'spot_detail_screen.dart';
 import '../services/analytics_service.dart';
+import '../utils/page_transitions.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -63,9 +64,12 @@ class _MapScreenState extends State<MapScreen> {
 
     final pos = await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.high,
-    );
+    ).catchError((e) {
+      print('GPS initial error: $e');
+      return null;
+    });
 
-    if (!mounted) return;
+    if (!mounted || pos == null) return;
     setState(() {
       _userPosition = LatLng(pos.latitude, pos.longitude);
       _gpsPosition = pos;
@@ -88,6 +92,8 @@ class _MapScreenState extends State<MapScreen> {
       if (DateTime.now().difference(_lastSpotLoad).inSeconds > 30) {
         _loadNearbySpots();
       }
+    }, onError: (e) {
+      print('GPS stream error: $e');
     });
   }
 
@@ -147,14 +153,6 @@ class _MapScreenState extends State<MapScreen> {
                     'World_Imagery/MapServer/tile/{z}/{y}/{x}',
                 userAgentPackageName: 'com.outdoor.app',
               ),
-              TileLayer(
-                urlTemplate: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-                userAgentPackageName: 'com.outdoor.app',
-                tileBuilder: (context, tileWidget, tile) => Opacity(
-                  opacity: 0.15,
-                  child: tileWidget,
-                ),
-              ),
               if (_gpsReady)
                 FogPainter(
                   mapController: _mapController,
@@ -178,7 +176,7 @@ class _MapScreenState extends State<MapScreen> {
                             blurRadius: 6,
                           )],
                         ),
-                        child: Icon(Icons.navigation, size: 16, color: AppColors.primario),
+                        child: Icon(AppIcons.gps, size: 16, color: AppColors.primario),
                       ),
                     ),
                 ],
@@ -198,11 +196,11 @@ class _MapScreenState extends State<MapScreen> {
       top: MediaQuery.of(context).padding.top + 8,
       left: 16, right: 16,
       child: GlassPanel(
-        blurIntensity: 16,
+        useBlur: false,
         borderRadius: 12,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         child: Row(children: [
-          Icon(Icons.explore, color: AppColors.primario, size: 20),
+          Icon(AppIcons.explorar, color: AppColors.primario, size: 20),
           const SizedBox(width: 8),
           Expanded(
             child: Text(
@@ -231,11 +229,11 @@ class _MapScreenState extends State<MapScreen> {
       child: GestureDetector(
         onTap: _centerOnUser,
         child: GlassPanel(
-          blurIntensity: 12,
+          useBlur: false,
           borderRadius: 30,
           padding: const EdgeInsets.all(12),
           shadowEnabled: true,
-          child: Icon(Icons.gps_fixed, color: AppColors.primario, size: 24),
+          child: Icon(AppIcons.gps, color: AppColors.primario, size: 24),
         ),
       ),
     );
@@ -251,11 +249,11 @@ class _MapScreenState extends State<MapScreen> {
       bottom: 100,
       left: 16, right: 72,
       child: GlassPanel(
-        blurIntensity: 16,
+        useBlur: false,
         borderRadius: 12,
         padding: const EdgeInsets.all(12),
         child: Row(children: [
-          Icon(Icons.location_on, color: AppColors.secundario, size: 18),
+          Icon(AppIcons.checkin, color: AppColors.secundario, size: 18),
           const SizedBox(width: 8),
           Expanded(
             child: Text('${visibles.length} spot${visibles.length > 1 ? "s" : ""} cerca',
@@ -307,7 +305,7 @@ class _MapScreenState extends State<MapScreen> {
       if (((s['lat'] as num).toDouble() - spot.position.latitude).abs() < epsilon &&
           ((s['lng'] as num).toDouble() - spot.position.longitude).abs() < epsilon) {
         Navigator.push(context,
-          MaterialPageRoute(builder: (_) => SpotDetailScreen(spotId: s['id'])));
+          FadeScaleRoute(page: SpotDetailScreen(spotId: s['id'])));
         break;
       }
     }

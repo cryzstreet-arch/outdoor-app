@@ -5,6 +5,7 @@ import '../config/constants.dart';
 import '../widgets/glass_panel.dart';
 import '../widgets/organic_pattern_painter.dart';
 import 'login_screen.dart';
+import '../utils/page_transitions.dart';
 
 class ServerConfigScreen extends StatefulWidget {
   const ServerConfigScreen({super.key});
@@ -45,7 +46,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
         if (!mounted) return;
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const LoginScreen()),
+          FadeScaleRoute(page: const LoginScreen()),
         );
       } else {
         setState(() { _error = 'Servidor respondió con error ${res.statusCode}'; });
@@ -78,7 +79,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
                         padding: const EdgeInsets.all(24),
                         child: Column(
                           children: [
-                            Icon(Icons.explore, size: 60, color: AppColors.primario),
+                            const Icon(Icons.explore_outlined, size: 60, color: null),
                             const SizedBox(height: 12),
                             Text(
                               'Outdoor Social',
@@ -109,7 +110,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
                               decoration: InputDecoration(
                                 labelText: 'IP del servidor',
                                 hintText: '192.168.1.100',
-                                prefixIcon: Icon(Icons.wifi, color: AppColors.primario),
+                                prefixIcon: Icon(AppIcons.wifi, color: AppColors.primario),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                 filled: true,
                                 fillColor: Colors.transparent,
@@ -126,7 +127,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
                               decoration: InputDecoration(
                                 labelText: 'Puerto',
                                 hintText: '3000',
-                                prefixIcon: Icon(Icons.numbers, color: AppColors.primario),
+                                prefixIcon: Icon(AppIcons.numeros, color: AppColors.primario),
                                 border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                                 filled: true,
                                 fillColor: Colors.transparent,
@@ -158,7 +159,7 @@ class _ServerConfigScreenState extends State<ServerConfigScreen> {
                                         width: 20, height: 20,
                                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                                       )
-                                    : const Icon(Icons.wifi_find, color: Colors.white),
+                                    : Icon(AppIcons.wifiBuscar, color: Colors.white),
                                 label: Text(
                                   _testing ? 'Conectando...' : 'Conectar',
                                   style: const TextStyle(color: Colors.white, fontSize: 16),

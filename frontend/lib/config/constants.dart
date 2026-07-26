@@ -43,7 +43,56 @@ class AppColors {
   static Color get error => _isDark ? _darkError : _lightError;
   static Color get exito => _isDark ? _darkExito : _lightExito;
 
-  static LinearGradient get gradienteFondo => _isDark
+class AppIcons {
+  static const explorar = Icons.explore_outlined;
+  static const mapa = Icons.map_outlined;
+  static const perfil = Icons.person_outline;
+  static const crear = Icons.add_circle_outline;
+  static const notificacion = Icons.notifications_outlined;
+  static const buscar = Icons.search;
+  static const filtrar = Icons.tune;
+  static const gps = Icons.my_location_outlined;
+  static const volver = Icons.arrow_back_outlined;
+  static const configuracion = Icons.settings_outlined;
+  static const logout = Icons.logout_outlined;
+  static const like = Icons.favorite_outline;
+  static const comentar = Icons.chat_bubble_outline;
+  static const checkin = Icons.location_on_outlined;
+  static const foto = Icons.camera_alt_outlined;
+  static const enviar = Icons.send_outlined;
+  static const guardar = Icons.save_outlined;
+  static const senderismo = Icons.hiking_outlined;
+  static const pesca = Icons.phishing_outlined;
+  static const camping = Icons.cabin_outlined;
+  static const escalada = Icons.terrain_outlined;
+  static const kayak = Icons.kayaking_outlined;
+  static const observacion = Icons.binoculars_outlined;
+  static const mirador = Icons.landscape_outlined;
+  static const natural = Icons.forest_outlined;
+  static const running = Icons.directions_run_outlined;
+  static const otro = Icons.place_outlined;
+  static const checkins = Icons.check_circle_outline;
+  static const km = Icons.straighten_outlined;
+  static const logros = Icons.emoji_events_outlined;
+  static const star = Icons.star_outline;
+  static const wifi = Icons.wifi_outlined;
+  static const dns = Icons.dns_outlined;
+  static const numeros = Icons.numbers_outlined;
+  static const reiniciar = Icons.restart_alt_outlined;
+  static const descripcion = Icons.description_outlined;
+  static const editarUbicacion = Icons.edit_location_alt_outlined;
+  static const agregarUbicacion = Icons.add_location_alt_outlined;
+  static const galeria = Icons.photo_library_outlined;
+  static const login = Icons.login_outlined;
+  static const registrar = Icons.person_add_outlined;
+  static const email = Icons.email_outlined;
+  static const lock = Icons.lock_outlined;
+  static const person = Icons.person_outlined;
+  static const check = Icons.check_circle_outlined;
+  static const wifiBuscar = Icons.wifi_find_outlined;
+}
+
+class AppColors {
       ? const LinearGradient(
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,

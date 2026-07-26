@@ -11,7 +11,8 @@ const { canCheckin, spotExists, deny } = require('../middleware/accessControl');
 const router = express.Router();
 fs.mkdirSync(path.join(__dirname, '..', '..', 'uploads'), { recursive: true });
 
-const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'application/octet-stream'];
+const ALLOWED_EXTS = ['.jpg', '.jpeg', '.png', '.webp', '.gif'];
 
 const storage = multer.diskStorage({
   destination: path.join(__dirname, '..', '..', 'uploads'),
@@ -28,6 +29,8 @@ const upload = multer({
     if (ALLOWED_MIME.includes(file.mimetype)) {
       cb(null, true);
     } else {
+      const ext = require('path').extname(file.originalname).toLowerCase();
+      if (ALLOWED_EXTS.includes(ext)) return cb(null, true);
       cb(new Error('Tipo de archivo no permitido. Solo se aceptan imágenes JPEG, PNG, WebP y GIF.'));
     }
   }

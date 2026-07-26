@@ -26,6 +26,7 @@ class SkeuomorphicButton extends StatelessWidget {
       color: btnColor,
       opacity: 0.45,
       blurIntensity: 10,
+      useBlur: false,
       child: InkWell(
         borderRadius: BorderRadius.circular(12),
         onTap: loading ? null : onPressed,

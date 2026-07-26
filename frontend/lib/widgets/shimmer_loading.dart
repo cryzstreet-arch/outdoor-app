@@ -40,6 +40,11 @@ class _ShimmerLoadingState extends State<ShimmerLoading>
   Widget build(BuildContext context) {
     final base = widget.baseColor ?? AppColors.superficie;
     final highlight = widget.highlightColor ?? AppColors.fondo;
+    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
+
+    if (!isCurrent) {
+      return widget.child;
+    }
 
     return AnimatedBuilder(
       animation: _controller,
@@ -110,6 +115,73 @@ class ShimmerCard extends StatelessWidget {
           ShimmerBox(width: double.infinity, height: 14),
           const SizedBox(height: 4),
           ShimmerBox(width: 200, height: 14),
+        ],
+      ),
+    );
+  }
+}
+
+class ShimmerProfile extends StatelessWidget {
+  const ShimmerProfile({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const SizedBox(height: 20),
+          ShimmerBox(width: 100, height: 100, borderRadius: 50),
+          const SizedBox(height: 12),
+          ShimmerBox(width: 140, height: 20),
+          const SizedBox(height: 8),
+          ShimmerBox(width: 180, height: 14),
+          const SizedBox(height: 24),
+          ShimmerBox(width: double.infinity, height: 160, borderRadius: 16),
+          const SizedBox(height: 24),
+          ShimmerBox(width: double.infinity, height: 50, borderRadius: 12),
+          const SizedBox(height: 12),
+          ShimmerBox(width: double.infinity, height: 50, borderRadius: 12),
+        ],
+      ),
+    );
+  }
+}
+
+class ShimmerDetail extends StatelessWidget {
+  const ShimmerDetail({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: const EdgeInsets.all(16),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          ShimmerBox(width: double.infinity, height: 200, borderRadius: 12),
+          const SizedBox(height: 16),
+          ShimmerBox(width: 180, height: 22),
+          const SizedBox(height: 8),
+          ShimmerBox(width: 120, height: 14),
+          const SizedBox(height: 16),
+          ShimmerBox(width: double.infinity, height: 14),
+          const SizedBox(height: 4),
+          ShimmerBox(width: 250, height: 14),
+          const SizedBox(height: 16),
+          ShimmerBox(width: double.infinity, height: 100, borderRadius: 12),
+          const SizedBox(height: 20),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              ShimmerBox(width: 60, height: 50),
+              ShimmerBox(width: 60, height: 50),
+              ShimmerBox(width: 60, height: 50),
+            ],
+          ),
+          const SizedBox(height: 20),
+          ShimmerBox(width: double.infinity, height: 50, borderRadius: 12),
+          const SizedBox(height: 12),
+          ShimmerBox(width: double.infinity, height: 50, borderRadius: 12),
         ],
       ),
     );

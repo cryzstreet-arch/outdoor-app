@@ -1,4 +1,3 @@
-import 'dart:ui';
 import 'package:flutter/material.dart';
 import '../config/constants.dart';
 
@@ -21,8 +20,6 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
-    final reduceTransparency = MediaQuery.of(context).disableAnimations;
-
     Widget appBar = AppBar(
       title: Text(
         title,
@@ -40,23 +37,11 @@ class GlassAppBar extends StatelessWidget implements PreferredSizeWidget {
       iconTheme: IconThemeData(color: AppColors.oscuro),
     );
 
-    if (reduceTransparency) {
-      return Container(
-        color: AppColors.superficie,
-        child: SafeArea(bottom: false, child: appBar),
-      );
-    }
-
-    return ClipRect(
-      child: BackdropFilter(
-        filter: ImageFilter.blur(sigmaX: 16, sigmaY: 16),
-        child: Container(
-          color: AppColors.isDark
-              ? const Color.fromRGBO(20, 20, 30, 0.7)
-              : Color.fromRGBO(232, 220, 200, 0.7),
-          child: SafeArea(bottom: false, child: appBar),
-        ),
-      ),
+    return Container(
+      color: AppColors.isDark
+          ? const Color.fromRGBO(20, 20, 30, 0.75)
+          : Color.fromRGBO(232, 220, 200, 0.75),
+      child: SafeArea(bottom: false, child: appBar),
     );
   }
 }

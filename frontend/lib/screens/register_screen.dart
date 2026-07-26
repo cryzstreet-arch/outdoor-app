@@ -9,6 +9,7 @@ import '../widgets/skeuomorphic_button.dart';
 import '../widgets/skeuomorphic_text_field.dart';
 import 'home_screen.dart';
 import '../services/analytics_service.dart';
+import '../utils/page_transitions.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -52,7 +53,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (ok) {
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        FadeScaleRoute(page: const HomeScreen()),
         (route) => false,
       );
     } else if (auth.error != null) {
@@ -71,7 +72,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      appBar: GlassAppBar(title: 'Registro'),
+      appBar: const GlassAppBar(title: 'Registro'),
       body: Container(
         decoration: BoxDecoration(
           gradient: AppColors.gradienteFondo,
@@ -79,7 +80,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              OrganicPatternBackground(),
+              const OrganicPatternBackground(),
               SingleChildScrollView(
                 padding: const EdgeInsets.all(32),
                 child: Form(
@@ -109,7 +110,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: _emailCtrl,
                               label: 'Email',
                               hint: 'tu@email.com',
-                              icon: Icons.email_outlined,
+                              icon: AppIcons.email,
                               validator: (v) {
                                 if (v == null || v.isEmpty) return 'Email requerido';
                                 if (!v.contains('@')) return 'Email inválido';
@@ -121,7 +122,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               controller: _userCtrl,
                               label: 'Nombre de usuario',
                               hint: 'explorador123',
-                              icon: Icons.person_outlined,
+                              icon: AppIcons.person,
                               validator: (v) {
                                 if (v == null || v.isEmpty) return 'Usuario requerido';
                                 if (v.length < 3) return 'Mínimo 3 caracteres';
@@ -134,7 +135,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               label: 'Contraseña',
                               hint: '••••••',
                               obscure: true,
-                              icon: Icons.lock_outlined,
+                              icon: AppIcons.lock,
                               validator: (v) {
                                 if (v == null || v.isEmpty) return 'Contraseña requerida';
                                 if (v.length < 6) return 'Mínimo 6 caracteres';
@@ -147,7 +148,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                               label: 'Confirmar contraseña',
                               hint: '••••••',
                               obscure: true,
-                              icon: Icons.lock_outlined,
+                              icon: AppIcons.lock,
                               validator: (v) {
                                 if (v != _passCtrl.text) return 'Las contraseñas no coinciden';
                                 return null;
@@ -157,7 +158,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
                             SkeuomorphicButton(
                               text: 'Crear cuenta',
                               loading: auth.loading,
-                              icon: Icons.person_add,
+                              icon: AppIcons.registrar,
                               onPressed: _register,
                             ),
                           ],

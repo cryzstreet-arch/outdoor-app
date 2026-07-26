@@ -11,7 +11,7 @@ import 'services/analytics_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/home_screen.dart';
 import 'screens/server_config_screen.dart';
-import 'widgets/organic_pattern_painter.dart';
+import 'screens/splash_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +32,7 @@ void main() async {
   AnalyticsService().init();
   OfflineQueue.sincronizar().catchError((_) {});
 
-  runApp(OutdoorApp());
+  runApp(const OutdoorApp());
 }
 
 class OutdoorApp extends StatelessWidget {
@@ -88,7 +88,7 @@ class OutdoorApp extends StatelessWidget {
             home: Consumer<AuthProvider>(
               builder: (_, auth, __) {
                 if (auth.loading) {
-                  return _buildLoadingScreen();
+                  return const SplashScreen();
                 }
                 if (!AppConfig.isConfigured) {
                   return const ServerConfigScreen();
@@ -98,38 +98,6 @@ class OutdoorApp extends StatelessWidget {
             ),
           );
         },
-      ),
-    );
-  }
-
-  Widget _buildLoadingScreen() {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(gradient: AppColors.gradienteFondo),
-        child: Stack(
-          children: [
-            const Positioned.fill(child: OrganicPatternBackground()),
-            Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  Icon(Icons.explore, size: 80, color: AppColors.primario),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Outdoor Social',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.primario,
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-                  CircularProgressIndicator(color: AppColors.primario),
-                ],
-              ),
-            ),
-          ],
-        ),
       ),
     );
   }

@@ -9,6 +9,7 @@ import '../widgets/skeuomorphic_text_field.dart';
 import 'register_screen.dart';
 import 'home_screen.dart';
 import '../services/analytics_service.dart';
+import '../utils/page_transitions.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -43,7 +44,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (!mounted) return;
     if (ok) {
       Navigator.pushReplacement(
-        context, MaterialPageRoute(builder: (_) => const HomeScreen()),
+        context, FadeScaleRoute(page: const HomeScreen()),
       );
     } else if (auth.error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -68,7 +69,7 @@ class _LoginScreenState extends State<LoginScreen> {
         child: SafeArea(
           child: Stack(
             children: [
-              OrganicPatternBackground(),
+              const OrganicPatternBackground(),
               Center(
                 child: SingleChildScrollView(
                   padding: const EdgeInsets.all(32),
@@ -82,8 +83,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           padding: const EdgeInsets.all(20),
                           child: Column(
                             children: [
-                              Icon(Icons.explore,
-                                size: 60, color: AppColors.primario),
+                              const Icon(AppIcons.explorar,
+                                size: 60, color: null),
                               const SizedBox(height: 8),
                               Text('Outdoor Social',
                                 style: TextStyle(
@@ -107,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           controller: _emailCtrl,
                           label: 'Email',
                           hint: 'tu@email.com',
-                          icon: Icons.email_outlined,
+                          icon: AppIcons.email,
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Ingresa tu email';
                             return null;
@@ -119,7 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           label: 'Contraseña',
                           hint: '••••••',
                           obscure: true,
-                          icon: Icons.lock_outlined,
+                          icon: AppIcons.lock,
                           validator: (v) {
                             if (v == null || v.isEmpty) return 'Ingresa tu contraseña';
                             return null;
@@ -129,7 +130,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         SkeuomorphicButton(
                           text: 'Entrar',
                           loading: auth.loading,
-                          icon: Icons.login,
+                          icon: AppIcons.login,
                           onPressed: _login,
                         ),
                         const SizedBox(height: 20),
@@ -137,8 +138,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(
-                                builder: (_) => const RegisterScreen(),
+                              SlideUpRoute(
+                                page: const RegisterScreen(),
                               ),
                             );
                           },

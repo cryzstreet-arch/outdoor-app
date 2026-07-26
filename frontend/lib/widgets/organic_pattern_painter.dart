@@ -153,8 +153,9 @@ class _OrganicPatternBackgroundState extends State<OrganicPatternBackground>
   @override
   Widget build(BuildContext context) {
     final reduceMotion = MediaQuery.of(context).disableAnimations;
+    final isCurrent = ModalRoute.of(context)?.isCurrent ?? true;
 
-    if (reduceMotion) {
+    if (reduceMotion || !isCurrent) {
       return Positioned.fill(
         child: CustomPaint(painter: OrganicPatternPainter(animationValue: 0)),
       );

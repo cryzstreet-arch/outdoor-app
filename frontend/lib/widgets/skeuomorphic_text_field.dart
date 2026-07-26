@@ -37,6 +37,7 @@ class SkeuomorphicTextField extends StatelessWidget {
           borderRadius: 10,
           opacity: 0.08,
           blurIntensity: 12,
+          useBlur: false,
           child: TextFormField(
             controller: controller,
             obscureText: obscure,

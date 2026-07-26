@@ -13,6 +13,7 @@ import '../widgets/glass_panel.dart';
 import '../widgets/glass_app_bar.dart';
 import '../utils/page_transitions.dart';
 import '../services/analytics_service.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class SpotDetailScreen extends StatefulWidget {
   final int spotId;
@@ -48,7 +49,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       backgroundColor: AppColors.fondo,
       appBar: GlassAppBar(title: spot?.nombre ?? 'Detalle'),
       body: spotProv.loading
-          ? Center(child: CircularProgressIndicator(color: AppColors.primario))
+          ? const ShimmerDetail()
           : spot == null
               ? Center(child: Text('Spot no encontrado',
                   style: TextStyle(color: AppColors.textoSecundario)))
@@ -94,9 +95,23 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: spot.imagenUrl != null
-              ? Image.network('${AppConfig.imageBaseUrl}${spot.imagenUrl}',
+              ? CachedNetworkImage(
+                  imageUrl: '${AppConfig.imageBaseUrl}${spot.imagenUrl}',
                   fit: BoxFit.cover,
-                  errorBuilder: (_, __, ___) => _placeholder())
+                  width: double.infinity,
+                  memCacheWidth: 800,
+                  placeholder: (_, __) => Container(
+                    height: 200,
+                    color: AppColors.superficie,
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: AppColors.primario,
+                      ),
+                    ),
+                  ),
+                  errorWidget: (_, __, ___) => _placeholder(),
+                )
               : _placeholder(),
         ),
       ),
@@ -104,7 +119,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   }
 
   Widget _placeholder() {
-    return Center(child: Icon(Icons.landscape, size: 64,
+    return Center(child: Icon(AppIcons.mirador, size: 64,
       color: AppColors.textoSecundario.withOpacity(0.3)));
   }
 
@@ -129,10 +144,12 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   }
 
   Widget _chip(String text, Color color) {
-    return GlassPanel(
-      opacity: 0.08,
-      borderRadius: 10,
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(10),
+      ),
       child: Text(text.toUpperCase(), style: TextStyle(
         fontSize: 11, color: color, fontWeight: FontWeight.w700)),
     );
@@ -140,7 +157,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
 
   Widget _buildInfo(Spot spot) {
     return Row(children: [
-      Icon(Icons.location_on_outlined, size: 16, color: AppColors.secundario),
+      Icon(AppIcons.checkin, size: 16, color: AppColors.secundario),
       const SizedBox(width: 4),
       Text('${spot.lat.toStringAsFixed(4)}, ${spot.lng.toStringAsFixed(4)}',
         style: TextStyle(fontSize: 13, color: AppColors.textoSecundario)),
@@ -157,9 +174,9 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       borderRadius: 12,
       padding: const EdgeInsets.all(16),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
-        _statCol(Icons.favorite_border, '${spot.totalLikes}', 'Likes'),
-        _statCol(Icons.chat_bubble_outline, '${spot.totalComentarios}', 'Comentarios'),
-        _statCol(Icons.check_circle_outline, '${spot.totalCheckins}', 'Visitas'),
+        _statCol(AppIcons.like, '${spot.totalLikes}', 'Likes'),
+        _statCol(AppIcons.comentar, '${spot.totalComentarios}', 'Comentarios'),
+        _statCol(AppIcons.check, '${spot.totalCheckins}', 'Visitas'),
       ]),
     );
   }
@@ -179,16 +196,16 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       Row(children: [
         Expanded(
           child: SkeuomorphicButton(
-            text: '❤️ Like',
-            icon: Icons.favorite_border,
+            text: 'Like',
+            icon: AppIcons.like,
             onPressed: () => context.read<SpotProvider>().likeSpot(spot.id),
           ),
         ),
         const SizedBox(width: 12),
         Expanded(
           child: SkeuomorphicButton(
-            text: '📸 Check-in',
-            icon: Icons.camera_alt,
+            text: 'Check-in',
+            icon: AppIcons.foto,
             color: AppColors.secundario,
             onPressed: _tomarFoto,
           ),
@@ -207,7 +224,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
         const SizedBox(height: 8),
         SkeuomorphicButton(
           text: 'Publicar y ganar progreso',
-          icon: Icons.check_circle,
+          icon: AppIcons.check,
           color: AppColors.exito,
           onPressed: _publicarCheckin,
         ),
@@ -244,7 +261,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       Row(children: [
         Expanded(
           child: GlassPanel(
-            opacity: 0.08,
+            useBlur: false,
             borderRadius: 10,
             child: TextField(
               controller: _comentarioCtrl,
@@ -258,7 +275,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
         ),
         const SizedBox(width: 8),
         IconButton(
-          icon: Icon(Icons.send, color: AppColors.primario),
+          icon: Icon(AppIcons.enviar, color: AppColors.primario),
           onPressed: () async {
             if (_comentarioCtrl.text.trim().isEmpty) return;
             await spotProv.comentar(spot.id, _comentarioCtrl.text.trim());
@@ -274,7 +291,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   Widget _comentarioItem(dynamic cItem) {
     final c = cItem as Map<String, dynamic>;
     return GlassPanel(
-      opacity: 0.1,
+      useBlur: false,
       borderRadius: 10,
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),

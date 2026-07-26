@@ -9,6 +9,7 @@ class GlassPanel extends StatelessWidget {
   final double? opacity;
   final double? borderOpacity;
   final bool shadowEnabled;
+  final bool useBlur;
   final Color? color;
   final EdgeInsetsGeometry? padding;
   final EdgeInsetsGeometry? margin;
@@ -18,10 +19,11 @@ class GlassPanel extends StatelessWidget {
     super.key,
     required this.child,
     this.borderRadius = 16,
-    this.blurIntensity = 16,
+    this.blurIntensity = 12,
     this.opacity,
     this.borderOpacity,
     this.shadowEnabled = true,
+    this.useBlur = true,
     this.color,
     this.padding,
     this.margin,
@@ -53,14 +55,15 @@ class GlassPanel extends StatelessWidget {
   Widget build(BuildContext context) {
     final reduceTransparency = MediaQuery.of(context).disableAnimations;
 
-    if (reduceTransparency) {
+    if (reduceTransparency || !useBlur) {
       return Container(
         padding: padding,
         margin: margin,
         constraints: constraints,
         decoration: BoxDecoration(
-          color: AppColors.superficie,
+          color: _bgColor,
           borderRadius: BorderRadius.circular(borderRadius),
+          border: Border.all(color: _borderColor, width: 1),
           boxShadow: _shadows,
         ),
         child: child,

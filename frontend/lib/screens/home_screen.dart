@@ -16,6 +16,7 @@ import '../config/category_themes.dart';
 import '../widgets/glass_panel.dart';
 import '../services/analytics_service.dart';
 import '../widgets/organic_pattern_painter.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,6 +26,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _currentIndex = 0;
+  late final List<Widget> _screens;
 
   @override
   void initState() {
@@ -35,6 +37,12 @@ class _HomeScreenState extends State<HomeScreen> {
     spotProv.setToken(auth.token);
     spotProv.loadSpots();
     auth.refreshPerfil();
+
+    _screens = [
+      _FeedTab(),
+      const MapScreen(),
+      const ProfileScreen(),
+    ];
 
     if (AppConfig.apiUrl.isEmpty) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -56,16 +64,10 @@ class _HomeScreenState extends State<HomeScreen> {
     if (!auth.isLoggedIn) {
       WidgetsBinding.instance.addPostFrameCallback((_) {
         Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (_) => const LoginScreen()));
+          context, FadeScaleRoute(page: const LoginScreen()));
       });
       return const SizedBox.shrink();
     }
-
-    final screens = [
-      _FeedTab(),
-      const MapScreen(),
-      const ProfileScreen(),
-    ];
 
     return Scaffold(
       backgroundColor: AppColors.fondo,
@@ -73,24 +75,27 @@ class _HomeScreenState extends State<HomeScreen> {
         decoration: BoxDecoration(gradient: AppColors.gradienteFondo),
         child: Stack(children: [
           const OrganicPatternBackground(),
-          screens[_currentIndex],
+          IndexedStack(
+            index: _currentIndex,
+            children: _screens,
+          ),
         ]),
       ),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () async {
                 final created = await Navigator.push<bool>(
-                  context, MaterialPageRoute(builder: (_) => const CreateSpotScreen()));
+                  context, SlideUpRoute(page: const CreateSpotScreen()));
                 if (created == true) {
                   context.read<SpotProvider>().loadSpots(refresh: true);
                 }
               },
               backgroundColor: AppColors.primario,
-              child: const Icon(Icons.add, color: Colors.white),
+              child: const Icon(AppIcons.crear, color: Colors.white),
             )
           : null,
       bottomNavigationBar: GlassPanel(
-        blurIntensity: 16,
+        useBlur: false,
         borderRadius: 0,
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
@@ -101,9 +106,9 @@ class _HomeScreenState extends State<HomeScreen> {
           type: BottomNavigationBarType.fixed, elevation: 0,
           selectedFontSize: 12, unselectedFontSize: 12,
           items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.explore), label: 'Explorar'),
-            BottomNavigationBarItem(icon: Icon(Icons.map_outlined), label: 'Mapa'),
-            BottomNavigationBarItem(icon: Icon(Icons.person_outline), label: 'Perfil'),
+            BottomNavigationBarItem(icon: Icon(AppIcons.explorar), label: 'Explorar'),
+            BottomNavigationBarItem(icon: Icon(AppIcons.mapa), label: 'Mapa'),
+            BottomNavigationBarItem(icon: Icon(AppIcons.perfil), label: 'Perfil'),
           ],
         ),
       ),
@@ -153,12 +158,12 @@ class _FeedTabState extends State<_FeedTab> {
               Padding(
                 padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
                 child: Row(children: [
-                  Icon(Icons.explore, color: AppColors.primario, size: 28),
+                  const Icon(AppIcons.explorar, color: null, size: 28),
                   const SizedBox(width: 8),
                   Text('Outdoor Social', style: TextStyle(
                     fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primario)),
                   const Spacer(),
-                  Icon(Icons.notifications_outlined, color: AppColors.textoSecundario, size: 24),
+                  const Icon(AppIcons.notificacion, color: null, size: 24),
                 ]),
               ),
               Padding(
@@ -169,7 +174,7 @@ class _FeedTabState extends State<_FeedTab> {
               const SizedBox(height: 12),
               Expanded(
                 child: spotProv.spots.isEmpty && spotProv.loading
-                    ? ShimmerCard()
+                    ? const ShimmerCard()
                     : spotProv.spots.isEmpty
                         ? Center(child: Text('No hay spots aún.\n¡Crea el primero!',
                             textAlign: TextAlign.center,
@@ -210,7 +215,7 @@ class _SpotCard extends StatelessWidget {
       onTap: () => Navigator.push(context,
         FadeScaleRoute(page: SpotDetailScreen(spotId: spot.id))),
       child: GlassPanel(
-        blurIntensity: 16,
+        useBlur: false,
         padding: EdgeInsets.zero,
         margin: const EdgeInsets.only(bottom: 16),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
@@ -222,9 +227,19 @@ class _SpotCard extends StatelessWidget {
                 height: 150,
                 color: AppColors.primario.withOpacity(0.05),
                 child: spot.imagenUrl != null
-                    ? Image.network('${AppConfig.imageBaseUrl}${spot.imagenUrl}',
+                    ? CachedNetworkImage(
+                        imageUrl: '${AppConfig.imageBaseUrl}${spot.imagenUrl}',
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) => _imgPlaceholder())
+                        width: double.infinity,
+                        memCacheWidth: 400,
+                        placeholder: (_, __) => Center(
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: AppColors.primario,
+                          ),
+                        ),
+                        errorWidget: (_, __, ___) => _imgPlaceholder(),
+                      )
                     : _imgPlaceholder(),
               ),
             ),
@@ -240,7 +255,7 @@ class _SpotCard extends StatelessWidget {
                       : spot.dificultad == 'medio' ? AppColors.secundario
                       : AppColors.error),
                 const Spacer(),
-                Icon(Icons.favorite_border, size: 16, color: AppColors.textoSecundario),
+                const Icon(AppIcons.like, size: 16, color: null),
                 const SizedBox(width: 4),
                 Text('${spot.totalLikes}', style: TextStyle(
                   fontSize: 12, color: AppColors.textoSecundario)),
@@ -253,7 +268,7 @@ class _SpotCard extends StatelessWidget {
                 style: TextStyle(fontSize: 13, color: AppColors.textoSecundario)),
               const SizedBox(height: 8),
               Row(children: [
-                Icon(Icons.location_on_outlined, size: 14, color: AppColors.secundario),
+                const Icon(AppIcons.checkin, size: 14, color: null),
                 const SizedBox(width: 4),
                 Text('${spot.lat.toStringAsFixed(2)}, ${spot.lng.toStringAsFixed(2)}',
                   style: TextStyle(fontSize: 11, color: AppColors.textoSecundario)),
@@ -269,19 +284,19 @@ class _SpotCard extends StatelessWidget {
   }
 
   Widget _tag(String text, Color color) {
-    return GlassPanel(
-      opacity: 0.08,
-      borderRadius: 6,
+    return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(6),
+      ),
       child: Text(text.toUpperCase(), style: TextStyle(
         fontSize: 10, color: color, fontWeight: FontWeight.w600)),
     );
   }
 
   Widget _imgPlaceholder() {
-    return Center(child: Icon(Icons.landscape, size: 48,
+    return Center(child: Icon(AppIcons.mirador, size: 48,
       color: AppColors.textoSecundario.withOpacity(0.2)));
   }
 }
-
-
