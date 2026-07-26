@@ -36,6 +36,7 @@ class QueuedItem {
 class OfflineQueue {
   static Database? _db;
   static final _api = ApiService();
+  static void setToken(String? token) { _api.setToken(token); }
 
   static Future<Database> get db async {
     if (_db != null) return _db!;
@@ -109,13 +110,14 @@ class OfflineQueue {
         }
         await eliminar(item.id!);
         ok++;
-      } catch (_) {}
+      } catch (e) { print('Error sincronizando item ${item.id}: $e'); }
     }
     return ok;
   }
 
   static void monitorear() {
-    Connectivity().onConnectivityChanged.listen((result) {
+    Connectivity().onConnectivityChanged.listen((results) {
+      final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
       if (result != ConnectivityResult.none) {
         sincronizar();
       }
@@ -123,7 +125,8 @@ class OfflineQueue {
   }
 
   static Future<bool> hayConexion() async {
-    final result = await Connectivity().checkConnectivity();
+    final results = await Connectivity().checkConnectivity();
+    final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
     return result != ConnectivityResult.none;
   }
 }

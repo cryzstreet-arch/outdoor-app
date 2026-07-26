@@ -1,10 +1,13 @@
 const express = require('express');
 const path = require('path');
+const fs = require('fs');
 const multer = require('multer');
 const db = require('../database');
 const { authMiddleware } = require('../middleware/auth');
+const haversine = require('../utils/haversine');
 
 const router = express.Router();
+fs.mkdirSync(path.join(__dirname, '..', '..', 'uploads'), { recursive: true });
 
 const storage = multer.diskStorage({
   destination: path.join(__dirname, '..', '..', 'uploads'),
@@ -25,8 +28,6 @@ router.post('/spots/:id/checkin', authMiddleware, (req, res) => {
   }
 
   db.prepare('INSERT INTO checkins (user_id, spot_id) VALUES (?, ?)').run(req.userId, req.params.id);
-
-  const stats = db.prepare('SELECT * FROM estadisticas_usuario WHERE user_id = ?').get(req.userId);
 
   let distancia = 0;
   if (spot.start_lat && spot.start_lng) {
@@ -130,8 +131,7 @@ function verificarLogros(userId, spot) {
   const stats = db.prepare('SELECT * FROM estadisticas_usuario WHERE user_id = ?').get(userId);
 
   if (stats.total_checkins % 5 === 0) {
-    const nivel = stats.total_checkins / 5;
-    const logro = db.prepare("SELECT id FROM logros WHERE tipo = 'insignia' AND umbral = ?").get(stats.total_checkins);
+    const logro = db.prepare("SELECT id, nombre FROM logros WHERE tipo = 'insignia' AND umbral = ?").get(stats.total_checkins);
     if (logro) {
       db.prepare('INSERT OR IGNORE INTO logros_usuario (user_id, logro_id) VALUES (?, ?)').run(userId, logro.id);
       nuevos.push({ tipo: 'insignia', nombre: logro.nombre });
@@ -139,15 +139,6 @@ function verificarLogros(userId, spot) {
   }
 
   return nuevos;
-}
-
-function haversine(lat1, lon1, lat2, lon2) {
-  const R = 6371000;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-  const a = Math.sin(dLat / 2) ** 2 +
-    Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.sin(dLon / 2) ** 2;
-  return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
 module.exports = router;

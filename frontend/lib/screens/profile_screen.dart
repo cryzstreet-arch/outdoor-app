@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../config/constants.dart';
 import '../providers/auth_provider.dart';
+import 'settings_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -111,6 +112,23 @@ class ProfileScreen extends StatelessWidget {
               ),
             ),
             const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () => Navigator.push(context,
+                  MaterialPageRoute(builder: (_) => const SettingsScreen())),
+                icon: const Icon(Icons.settings, color: AppColors.textoSecundario),
+                label: const Text('Configuración del servidor',
+                  style: TextStyle(color: AppColors.textoSecundario)),
+                style: OutlinedButton.styleFrom(
+                  side: BorderSide(color: AppColors.superficie),
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
+            const SizedBox(height: 12),
             SizedBox(
               width: double.infinity,
               child: OutlinedButton.icon(

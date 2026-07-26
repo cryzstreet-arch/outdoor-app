@@ -9,6 +9,8 @@ import '../models/spot.dart';
 import '../providers/spot_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/fog_painter.dart';
+import '../widgets/particle_overlay.dart';
+import '../config/category_themes.dart';
 import 'spot_detail_screen.dart';
 
 class MapScreen extends StatefulWidget {
@@ -24,6 +26,7 @@ class _MapScreenState extends State<MapScreen> {
   StreamSubscription<Position>? _gpsSubscription;
   List<FogSpotData> _fogSpots = [];
   bool _gpsReady = false;
+  DateTime _lastSpotLoad = DateTime.fromMillisecondsSinceEpoch(0);
 
   @override
   void initState() {
@@ -79,11 +82,14 @@ class _MapScreenState extends State<MapScreen> {
         _userPosition = LatLng(pos.latitude, pos.longitude);
         _gpsPosition = pos;
       });
-      _loadNearbySpots();
+      if (DateTime.now().difference(_lastSpotLoad).inSeconds > 30) {
+        _loadNearbySpots();
+      }
     });
   }
 
   Future<void> _loadNearbySpots() async {
+    _lastSpotLoad = DateTime.now();
     final provider = context.read<SpotProvider>();
     final rawSpots = await provider.fetchSpotsRaw();
     if (!mounted) return;
@@ -109,6 +115,16 @@ class _MapScreenState extends State<MapScreen> {
       backgroundColor: AppColors.fondo,
       body: Stack(
         children: [
+          Positioned.fill(
+            child: IgnorePointer(
+              child: ParticleOverlay(
+                categoria: _fogSpots.isNotEmpty
+                    ? _fogSpots.first.categoria ?? 'otro'
+                    : 'otro',
+                particleCount: 12,
+              ),
+            ),
+          ),
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
@@ -141,6 +157,7 @@ class _MapScreenState extends State<MapScreen> {
                   mapController: _mapController,
                   userPosition: _userPosition,
                   spots: _fogSpots,
+                  categoria: _nearestCategoria,
                 ),
               MarkerLayer(
                 markers: [
@@ -258,6 +275,17 @@ class _MapScreenState extends State<MapScreen> {
     );
   }
 
+  String get _nearestCategoria {
+    if (_fogSpots.isEmpty) return 'otro';
+    FogSpotData? nearest;
+    double minDist = double.infinity;
+    for (final s in _fogSpots) {
+      final d = const Distance().distance(s.position, _userPosition);
+      if (d < minDist) { minDist = d; nearest = s; }
+    }
+    return nearest?.categoria ?? 'otro';
+  }
+
   void _centerOnUser() {
     _mapController.move(_userPosition, 14);
   }
@@ -283,8 +311,9 @@ class _MapScreenState extends State<MapScreen> {
     if (!mounted) return;
 
     for (final s in rawSpots) {
-      if ((s['lat'] as num).toDouble() == spot.position.latitude &&
-          (s['lng'] as num).toDouble() == spot.position.longitude) {
+      const epsilon = 0.0001;
+      if (((s['lat'] as num).toDouble() - spot.position.latitude).abs() < epsilon &&
+          ((s['lng'] as num).toDouble() - spot.position.longitude).abs() < epsilon) {
         Navigator.push(context,
           MaterialPageRoute(builder: (_) => SpotDetailScreen(spotId: s['id'])));
         break;

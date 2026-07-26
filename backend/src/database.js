@@ -129,7 +129,7 @@ db.exec(`
 
 const rootExists = db.prepare('SELECT id FROM usuarios WHERE username = ?').get('root');
 if (!rootExists) {
-  const hash = bcrypt.hashSync('1q2w3e4r5t', 10);
+  const hash = bcrypt.hashSync(process.env.ROOT_PASSWORD || 'cambiar-en-produccion-123', 10);
   db.prepare(
     'INSERT INTO usuarios (email, username, password_hash, es_admin) VALUES (?, ?, ?, ?)'
   ).run('root@admin', 'root', hash, 1);

@@ -51,4 +51,18 @@ router.post('/seed', adminMiddleware, (req, res) => {
   res.json({ creados: count, mensaje: `${count} spots de ejemplo creados` });
 });
 
+router.delete('/spots/:id', adminMiddleware, (req, res) => {
+  db.prepare('DELETE FROM likes WHERE spot_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM comentarios WHERE spot_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM checkins WHERE spot_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM publicaciones WHERE spot_id = ?').run(req.params.id);
+  db.prepare('DELETE FROM spots WHERE id = ?').run(req.params.id);
+  res.json({ mensaje: 'Spot eliminado por admin' });
+});
+
+router.delete('/comentarios/:id', adminMiddleware, (req, res) => {
+  db.prepare('DELETE FROM comentarios WHERE id = ?').run(req.params.id);
+  res.json({ mensaje: 'Comentario eliminado por admin' });
+});
+
 module.exports = router;

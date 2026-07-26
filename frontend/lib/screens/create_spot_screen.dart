@@ -6,6 +6,7 @@ import '../config/constants.dart';
 import '../providers/spot_provider.dart';
 import '../widgets/skeuomorphic_button.dart';
 import '../widgets/skeuomorphic_text_field.dart';
+import 'package:geolocator/geolocator.dart';
 
 class CreateSpotScreen extends StatefulWidget {
   const CreateSpotScreen({super.key});
@@ -31,6 +32,26 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
   // Mock coordinates (en producción usar GPS del teléfono)
   double _lat = -34.6037;
   double _lng = -58.3816;
+
+  @override
+  void initState() {
+    super.initState();
+    _initGps();
+  }
+
+  Future<void> _initGps() async {
+    try {
+      bool serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) return;
+      LocationPermission permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) return;
+      }
+      final pos = await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+      if (mounted) setState(() { _lat = pos.latitude; _lng = pos.longitude; });
+    } catch (_) {}
+  }
 
   final List<String> _categorias = [
     'pesca', 'senderismo', 'camping', 'running',

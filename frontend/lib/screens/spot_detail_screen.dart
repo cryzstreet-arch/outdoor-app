@@ -8,6 +8,8 @@ import '../providers/spot_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/skeuomorphic_button.dart';
 import '../widgets/skeuomorphic_text_field.dart';
+import '../widgets/particle_overlay.dart';
+import '../utils/page_transitions.dart';
 
 class SpotDetailScreen extends StatefulWidget {
   final int spotId;
@@ -53,44 +55,57 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
           : spot == null
               ? Center(child: Text('Spot no encontrado',
                   style: TextStyle(color: AppColors.textoSecundario)))
-              : SingleChildScrollView(
-                  padding: const EdgeInsets.all(16),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      _buildImage(spot),
-                      const SizedBox(height: 16),
-                      _buildHeader(spot),
-                      const SizedBox(height: 12),
-                      _buildInfo(spot),
-                      const SizedBox(height: 16),
-                      _buildDescription(spot),
-                      const SizedBox(height: 16),
-                      _buildStats(spot),
-                      const SizedBox(height: 20),
-                      _buildActions(spot),
-                      const SizedBox(height: 20),
-                      _buildComentariosSection(spot, spotProv),
-                    ],
-                  ),
+              : Stack(
+                  children: [
+                    Positioned.fill(
+                      child: ParticleOverlay(
+                        categoria: spot.categoria,
+                        particleCount: 8,
+                      ),
+                    ),
+                    SingleChildScrollView(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          _buildImage(spot),
+                          const SizedBox(height: 16),
+                          _buildHeader(spot),
+                          const SizedBox(height: 12),
+                          _buildInfo(spot),
+                          const SizedBox(height: 16),
+                          _buildDescription(spot),
+                          const SizedBox(height: 16),
+                          _buildStats(spot),
+                          const SizedBox(height: 20),
+                          _buildActions(spot),
+                          const SizedBox(height: 20),
+                          _buildComentariosSection(spot, spotProv),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
     );
   }
 
   Widget _buildImage(Spot spot) {
-    return Container(
-      height: 200, width: double.infinity,
-      decoration: BoxDecoration(
-        color: AppColors.superficie,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12),
-        child: spot.imagenUrl != null
-            ? Image.network('${AppConfig.imageBaseUrl}${spot.imagenUrl}',
-                fit: BoxFit.cover,
-                errorBuilder: (_, __, ___) => _placeholder())
-            : _placeholder(),
+    return Hero(
+      tag: 'spot-img-${spot.id}',
+      child: Container(
+        height: 200, width: double.infinity,
+        decoration: BoxDecoration(
+          color: AppColors.superficie,
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: ClipRRect(
+          borderRadius: BorderRadius.circular(12),
+          child: spot.imagenUrl != null
+              ? Image.network('${AppConfig.imageBaseUrl}${spot.imagenUrl}',
+                  fit: BoxFit.cover,
+                  errorBuilder: (_, __, ___) => _placeholder())
+              : _placeholder(),
+        ),
       ),
     );
   }
@@ -271,7 +286,8 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
     ]);
   }
 
-  Widget _comentarioItem(Map<String, dynamic> c) {
+  Widget _comentarioItem(dynamic cItem) {
+    final c = cItem as Map<String, dynamic>;
     return Container(
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
@@ -285,7 +301,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
             style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600,
               color: AppColors.primario)),
           const Spacer(),
-          Text(c['created_at']?.toString().substring(0, 10) ?? '',
+          Text((() { try { final s = c['created_at']?.toString() ?? ''; return s.length >= 10 ? s.substring(0, 10) : s; } catch (_) { return ''; } })(),
             style: TextStyle(fontSize: 10, color: AppColors.textoSecundario)),
         ]),
         const SizedBox(height: 4),

@@ -18,6 +18,16 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(":app")
 }
+subprojects {
+    afterEvaluate {
+        if (project.hasProperty("android")) {
+            try {
+                val android = project.extensions.getByName("android")
+                android.javaClass.getMethod("setCompileSdk", Int::class.java).invoke(android, 36)
+            } catch (_: Exception) {}
+        }
+    }
+}
 
 tasks.register<Delete>("clean") {
     delete(rootProject.layout.buildDirectory)

@@ -1,5 +1,6 @@
 import 'dart:io' show Platform;
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:provider/provider.dart';
 import 'config/constants.dart';
 import 'providers/auth_provider.dart';
@@ -11,16 +12,19 @@ import 'screens/home_screen.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await AppConfig.init();
 
-  if (!Platform.isLinux) {
-    final result = await DiscoveryService.discoverServer();
-    if (result != null) {
-      AppConfig.setServer(result.ip, result.port);
+  if (!AppConfig.isConfigured) {
+    if (!kIsWeb && (Platform.isAndroid || Platform.isIOS)) {
+      final result = await DiscoveryService.discoverServer();
+      if (result != null) {
+        AppConfig.setServer(result.ip, result.port);
+      }
     }
   }
 
   OfflineQueue.monitorear();
-  OfflineQueue.sincronizar();
+  OfflineQueue.sincronizar().catchError((_) {});
 
   runApp(const OutdoorApp());
 }

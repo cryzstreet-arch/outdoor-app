@@ -2,16 +2,19 @@ import 'dart:ui' as ui;
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
+import '../config/category_themes.dart';
 
 class FogPainter extends StatelessWidget {
   final MapController mapController;
   final LatLng userPosition;
   final List<FogSpotData> spots;
+  final String? categoria;
 
   const FogPainter({
     required this.mapController,
     required this.userPosition,
     required this.spots,
+    this.categoria,
   });
 
   @override
@@ -21,6 +24,7 @@ class FogPainter extends StatelessWidget {
         mapController: mapController,
         userPosition: userPosition,
         spots: spots,
+        categoria: categoria,
       ),
       size: Size.infinite,
     );
@@ -49,16 +53,19 @@ class _FogCustomPainter extends CustomPainter {
   final MapController mapController;
   final LatLng userPosition;
   final List<FogSpotData> spots;
+  final String? categoria;
 
   _FogCustomPainter({
     required this.mapController,
     required this.userPosition,
     required this.spots,
+    this.categoria,
   });
 
   @override
   void paint(Canvas canvas, Size size) {
-    final fogColor = const Color(0xFF0D1B2A).withOpacity(0.55);
+    final catTheme = CategoryTheme.forCategoria(categoria);
+    final fogColor = catTheme.fogTint;
 
     canvas.saveLayer(Rect.fromLTWH(0, 0, size.width, size.height), Paint());
 
@@ -138,5 +145,9 @@ class _FogCustomPainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(_FogCustomPainter oldDelegate) => true;
+  bool shouldRepaint(_FogCustomPainter oldDelegate) {
+    return oldDelegate.categoria != categoria ||
+        oldDelegate.userPosition != userPosition ||
+        oldDelegate.spots.length != spots.length;
+  }
 }

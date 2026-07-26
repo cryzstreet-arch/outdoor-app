@@ -12,6 +12,10 @@ router.post('/register', (req, res) => {
     return res.status(400).json({ error: 'Email, usuario y contraseña requeridos' });
   }
 
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(email)) return res.status(400).json({ error: 'Email inválido' });
+  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) return res.status(400).json({ error: 'Usuario: 3-20 caracteres, solo letras, números y _' });
+
   if (password.length < 6) {
     return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
   }

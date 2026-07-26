@@ -21,7 +21,15 @@ class ApiService {
       Uri.parse('$baseUrl/auth/register'),
       headers: _headers,
       body: jsonEncode({'email': email, 'username': username, 'password': password}),
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -30,7 +38,15 @@ class ApiService {
       Uri.parse('$baseUrl/auth/login'),
       headers: _headers,
       body: jsonEncode({'email': email, 'password': password}),
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -38,7 +54,15 @@ class ApiService {
     final res = await http.get(
       Uri.parse('$baseUrl/auth/perfil'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -48,7 +72,15 @@ class ApiService {
     if (dificultad != null) params['dificultad'] = dificultad;
 
     final uri = Uri.parse('$baseUrl/spots').replace(queryParameters: params);
-    final res = await http.get(uri, headers: _headers);
+    final res = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -56,7 +88,15 @@ class ApiService {
     final res = await http.get(
       Uri.parse('$baseUrl/spots/$id'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -64,7 +104,15 @@ class ApiService {
     final uri = Uri.parse('$baseUrl/spots/cerca').replace(queryParameters: {
       'lat': '$lat', 'lng': '$lng', 'radio': '$radio',
     });
-    final res = await http.get(uri, headers: _headers);
+    final res = await http.get(uri, headers: _headers).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -101,8 +149,16 @@ class ApiService {
       request.files.add(await http.MultipartFile.fromPath('imagen', imagen.path));
     }
 
-    final stream = await request.send();
+    final stream = await request.send().timeout(const Duration(seconds: 30));
     final res = await http.Response.fromStream(stream);
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor'};
+      } catch (_) {
+        return {'error': 'Error del servidor'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -110,7 +166,15 @@ class ApiService {
     final res = await http.post(
       Uri.parse('$baseUrl/social/spots/$spotId/like'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -119,7 +183,15 @@ class ApiService {
       Uri.parse('$baseUrl/social/spots/$spotId/comentarios'),
       headers: _headers,
       body: jsonEncode({'contenido': contenido}),
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -127,7 +199,8 @@ class ApiService {
     final res = await http.get(
       Uri.parse('$baseUrl/social/spots/$spotId/comentarios'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200) return [];
     return jsonDecode(res.body);
   }
 
@@ -135,7 +208,15 @@ class ApiService {
     final res = await http.post(
       Uri.parse('$baseUrl/social/usuarios/$userId/seguir'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -143,7 +224,15 @@ class ApiService {
     final res = await http.post(
       Uri.parse('$baseUrl/spots/$spotId/checkin'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -154,8 +243,16 @@ class ApiService {
     request.fields['descripcion'] = descripcion;
     request.files.add(await http.MultipartFile.fromPath('imagen', imagen.path));
 
-    final stream = await request.send();
+    final stream = await request.send().timeout(const Duration(seconds: 30));
     final res = await http.Response.fromStream(stream);
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor'};
+      } catch (_) {
+        return {'error': 'Error del servidor'};
+      }
+    }
     return jsonDecode(res.body);
   }
 
@@ -163,7 +260,8 @@ class ApiService {
     final res = await http.get(
       Uri.parse('$baseUrl/logros'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200) return [];
     return jsonDecode(res.body) as List<dynamic>;
   }
 
@@ -171,7 +269,15 @@ class ApiService {
     final res = await http.get(
       Uri.parse('$baseUrl/social/usuarios/$id'),
       headers: _headers,
-    );
+    ).timeout(const Duration(seconds: 15));
+    if (res.statusCode != 200 && res.statusCode != 201) {
+      try {
+        final body = jsonDecode(res.body);
+        return {'error': body['error'] ?? 'Error del servidor (${res.statusCode})'};
+      } catch (_) {
+        return {'error': 'Error del servidor (${res.statusCode})'};
+      }
+    }
     return jsonDecode(res.body);
   }
 }

@@ -9,9 +9,19 @@ const { startDiscovery, getLocalIP } = require('./discovery');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: '*' } });
+const io = new Server(server, { cors: { origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'] } });
 
-app.use(cors());
+app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
+
+const jwt = require('jsonwebtoken');
+io.use((socket, next) => {
+  const token = socket.handshake.auth?.token;
+  if (!token) return next(new Error('Auth required'));
+  try {
+    socket.userId = jwt.verify(token, process.env.JWT_SECRET).id;
+    next();
+  } catch { next(new Error('Invalid token')); }
+});
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 

@@ -9,6 +9,10 @@ import 'profile_screen.dart';
 import 'spot_detail_screen.dart';
 import 'create_spot_screen.dart';
 import 'map_screen.dart';
+import '../widgets/shimmer_loading.dart';
+import '../utils/page_transitions.dart';
+import '../widgets/particle_overlay.dart';
+import '../config/category_themes.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -27,6 +31,18 @@ class _HomeScreenState extends State<HomeScreen> {
     spotProv.setToken(auth.token);
     spotProv.loadSpots();
     auth.refreshPerfil();
+
+    if (AppConfig.apiUrl.isEmpty) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: const Text('Servidor no configurado. Ve a Perfil → Configuración'),
+            backgroundColor: AppColors.secundario,
+            duration: const Duration(seconds: 5),
+          ));
+        }
+      });
+    }
   }
 
   @override
@@ -121,50 +137,57 @@ class _FeedTabState extends State<_FeedTab> {
     final spotProv = context.watch<SpotProvider>();
 
     return SafeArea(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
-            child: Row(children: [
-              Icon(Icons.explore, color: AppColors.primario, size: 28),
-              const SizedBox(width: 8),
-              Text('Outdoor Social', style: TextStyle(
-                fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primario)),
-              const Spacer(),
-              Icon(Icons.notifications_outlined, color: AppColors.textoSecundario, size: 24),
-            ]),
+          const Positioned.fill(
+            child: ParticleOverlay(categoria: 'natural', particleCount: 10),
           ),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Text('Spots descubiertos',
-              style: TextStyle(fontSize: 14, color: AppColors.textoSecundario)),
-          ),
-          const SizedBox(height: 12),
-          Expanded(
-            child: spotProv.spots.isEmpty && spotProv.loading
-                ? Center(child: CircularProgressIndicator(color: AppColors.primario))
-                : spotProv.spots.isEmpty
-                    ? Center(child: Text('No hay spots aún.\n¡Crea el primero!',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(color: AppColors.textoSecundario)))
-                    : RefreshIndicator(
-                        onRefresh: () => spotProv.loadSpots(refresh: true),
-                        child: ListView.builder(
-                          controller: _scrollCtrl,
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          itemCount: spotProv.spots.length + (spotProv.loading ? 1 : 0),
-                          itemBuilder: (_, i) {
-                            if (i >= spotProv.spots.length) {
-                              return const Padding(
-                                padding: EdgeInsets.all(16),
-                                child: Center(child: CircularProgressIndicator()),
-                              );
-                            }
-                            return _SpotCard(spot: spotProv.spots[i]);
-                          },
-                        ),
-                      ),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Padding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 8),
+                child: Row(children: [
+                  Icon(Icons.explore, color: AppColors.primario, size: 28),
+                  const SizedBox(width: 8),
+                  Text('Outdoor Social', style: TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold, color: AppColors.primario)),
+                  const Spacer(),
+                  Icon(Icons.notifications_outlined, color: AppColors.textoSecundario, size: 24),
+                ]),
+              ),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Text('Spots descubiertos',
+                  style: TextStyle(fontSize: 14, color: AppColors.textoSecundario)),
+              ),
+              const SizedBox(height: 12),
+              Expanded(
+                child: spotProv.spots.isEmpty && spotProv.loading
+                    ? ShimmerCard()
+                    : spotProv.spots.isEmpty
+                        ? Center(child: Text('No hay spots aún.\n¡Crea el primero!',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(color: AppColors.textoSecundario)))
+                        : RefreshIndicator(
+                            onRefresh: () => spotProv.loadSpots(refresh: true),
+                            child: ListView.builder(
+                              controller: _scrollCtrl,
+                              padding: const EdgeInsets.symmetric(horizontal: 16),
+                              itemCount: spotProv.spots.length + (spotProv.loading ? 1 : 0),
+                              itemBuilder: (_, i) {
+                                if (i >= spotProv.spots.length) {
+                                  return const Padding(
+                                    padding: EdgeInsets.all(16),
+                                    child: Center(child: CircularProgressIndicator()),
+                                  );
+                                }
+                                return _SpotCard(spot: spotProv.spots[i]);
+                              },
+                            ),
+                          ),
+              ),
+            ],
           ),
         ],
       ),
@@ -180,7 +203,7 @@ class _SpotCard extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () => Navigator.push(context,
-        MaterialPageRoute(builder: (_) => SpotDetailScreen(spotId: spot.id))),
+        FadeScaleRoute(page: SpotDetailScreen(spotId: spot.id))),
       child: Container(
         margin: const EdgeInsets.only(bottom: 16),
         decoration: BoxDecoration(
@@ -193,14 +216,17 @@ class _SpotCard extends StatelessWidget {
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
-            child: Container(
-              height: 150,
-              color: AppColors.primario.withOpacity(0.05),
-              child: spot.imagenUrl != null
-                  ? Image.network('${AppConfig.imageBaseUrl}${spot.imagenUrl}',
-                      fit: BoxFit.cover,
-                      errorBuilder: (_, __, ___) => _imgPlaceholder())
-                  : _imgPlaceholder(),
+            child: Hero(
+              tag: 'spot-img-${spot.id}',
+              child: Container(
+                height: 150,
+                color: AppColors.primario.withOpacity(0.05),
+                child: spot.imagenUrl != null
+                    ? Image.network('${AppConfig.imageBaseUrl}${spot.imagenUrl}',
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) => _imgPlaceholder())
+                    : _imgPlaceholder(),
+              ),
             ),
           ),
           Padding(

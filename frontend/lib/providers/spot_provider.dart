@@ -12,14 +12,14 @@ class SpotProvider extends ChangeNotifier {
   String? _error;
   int _currentPage = 1;
   bool _hasMore = true;
-  List<dynamic> _comentarios = [];
+  List<Map<String, dynamic>> _comentarios = [];
 
   List<Spot> get spots => _spots;
   Spot? get currentSpot => _currentSpot;
   bool get loading => _loading;
   String? get error => _error;
   bool get hasMore => _hasMore;
-  List<dynamic> get comentarios => _comentarios;
+  List<Map<String, dynamic>> get comentarios => _comentarios;
 
   void setToken(String? token) {
     _api.setToken(token);
@@ -59,7 +59,8 @@ class SpotProvider extends ChangeNotifier {
     try {
       final data = await _api.getSpot(id);
       _currentSpot = Spot.fromJson(data);
-      _comentarios = await _api.getComentarios(id);
+      final raw = await _api.getComentarios(id);
+      _comentarios = raw.cast<Map<String, dynamic>>();
     } catch (e) {
       _error = 'Error al cargar spot';
     }
@@ -132,14 +133,20 @@ class SpotProvider extends ChangeNotifier {
   }
 
   Future<bool> likeSpot(int spotId) async {
+    final previousSpot = _currentSpot;
     try {
-      await _api.likeSpot(spotId);
+      final result = await _api.likeSpot(spotId);
       if (_currentSpot != null && _currentSpot!.id == spotId) {
-        _currentSpot = Spot.fromJson({..._currentSpot!.toJson(), 'total_likes': _currentSpot!.totalLikes + 1});
+        final newLikes = result['liked'] == true
+            ? _currentSpot!.totalLikes + 1
+            : _currentSpot!.totalLikes - 1;
+        _currentSpot = Spot.fromJson({..._currentSpot!.toJson(), 'total_likes': newLikes});
         notifyListeners();
       }
       return true;
     } catch (_) {
+      _currentSpot = previousSpot;
+      notifyListeners();
       return false;
     }
   }

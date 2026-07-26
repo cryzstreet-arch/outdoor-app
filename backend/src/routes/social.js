@@ -45,7 +45,7 @@ router.post('/spots/:id/comentarios', authMiddleware, (req, res) => {
 });
 
 router.delete('/comentarios/:id', authMiddleware, (req, res) => {
-  const comentario = db.prepare('SELECT * FROM comentarios WHERE id = ? AND user_id = ?').get(req.params.id, req.userId);
+  const comentario = db.prepare('SELECT * FROM comentarios WHERE id = ? AND (user_id = ? OR (SELECT es_admin FROM usuarios WHERE id = ?) = 1)').get(req.params.id, req.userId, req.userId);
   if (!comentario) return res.status(404).json({ error: 'Comentario no encontrado o no autorizado' });
 
   db.prepare('DELETE FROM comentarios WHERE id = ?').run(req.params.id);

@@ -6,10 +6,9 @@ import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
-import 'dart:convert';
 
 class TileCacheProvider implements TileProvider {
-  final tileUrl;
+  final String tileUrl;
   TileCacheProvider({this.tileUrl = 'https://tile.openstreetmap.org/{z}/{x}/{y}.png'});
 
   final _network = OSMNetworkTileProvider();
