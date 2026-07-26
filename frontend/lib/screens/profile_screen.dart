@@ -109,8 +109,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
               child: OutlinedButton.icon(
                 onPressed: () => Navigator.push(context,
                   MaterialPageRoute(builder: (_) => const SettingsScreen())),
-                icon: const Icon(Icons.settings, color: AppColors.textoSecundario),
-                label: const Text('Configuración del servidor',
+                icon: Icon(Icons.settings, color: AppColors.textoSecundario),
+                label: Text('Configuración del servidor',
                   style: TextStyle(color: AppColors.textoSecundario)),
                 style: OutlinedButton.styleFrom(
                   side: BorderSide(color: AppColors.superficie),
@@ -125,12 +125,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
               width: double.infinity,
               child: OutlinedButton.icon(
                 onPressed: () => auth.logout(),
-                icon: const Icon(Icons.logout, color: AppColors.error),
-                label: const Text('Cerrar sesión',
+                icon: Icon(Icons.logout, color: AppColors.error),
+                label: Text('Cerrar sesión',
                   style: TextStyle(color: AppColors.error),
                 ),
                 style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: AppColors.error),
+                  side: BorderSide(color: AppColors.error),
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),

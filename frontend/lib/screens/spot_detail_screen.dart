@@ -48,7 +48,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       backgroundColor: AppColors.fondo,
       appBar: GlassAppBar(title: spot?.nombre ?? 'Detalle'),
       body: spotProv.loading
-          ? const Center(child: CircularProgressIndicator(color: AppColors.primario))
+          ? Center(child: CircularProgressIndicator(color: AppColors.primario))
           : spot == null
               ? Center(child: Text('Spot no encontrado',
                   style: TextStyle(color: AppColors.textoSecundario)))
