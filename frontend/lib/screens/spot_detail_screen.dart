@@ -49,7 +49,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       backgroundColor: AppColors.fondo,
       appBar: GlassAppBar(title: spot?.nombre ?? 'Detalle'),
       body: spotProv.loading
-          ? const ShimmerDetail()
+          ? ShimmerDetail()
           : spot == null
               ? Center(child: Text('Spot no encontrado',
                   style: TextStyle(color: AppColors.textoSecundario)))

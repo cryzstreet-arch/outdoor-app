@@ -84,7 +84,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () async {
-                final created = await Navigator.push<bool>(
+                final created = await Navigator.push(
                   context, SlideUpRoute(page: const CreateSpotScreen()));
                 if (created == true) {
                   context.read<SpotProvider>().loadSpots(refresh: true);

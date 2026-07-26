@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/constants.dart';
 import '../widgets/organic_pattern_painter.dart';
-import '../config/category_themes.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -26,15 +25,15 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _fadeAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, interval: const Duration(milliseconds: 0), end: const Duration(milliseconds: 800), curve: Curves.easeOut),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4, curve: Curves.easeOut)),
     );
 
     _scaleAnim = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, interval: const Duration(milliseconds: 0), end: const Duration(milliseconds: 800), curve: Curves.easeOutCubic),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.0, 0.4, curve: Curves.easeOutCubic)),
     );
 
     _progressAnim = Tween<double>(begin: 0.0, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, interval: const Duration(milliseconds: 400), end: const Duration(milliseconds: 1800), curve: Curves.easeInOut),
+      CurvedAnimation(parent: _controller, curve: const Interval(0.2, 0.9, curve: Curves.easeInOut)),
     );
 
     _controller.forward();
@@ -74,7 +73,7 @@ class _SplashScreenState extends State<SplashScreen>
                           ),
                         ),
                         child: Icon(
-                          Icons.explore_outlined,
+                          AppIcons.explorar,
                           size: 60,
                           color: AppColors.primario,
                         ),
