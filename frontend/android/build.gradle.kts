@@ -18,13 +18,13 @@ subprojects {
 subprojects {
     project.evaluationDependsOn(":app")
 }
-subprojects {
-    afterEvaluate {
-        if (project.hasProperty("android")) {
-            try {
-                val android = project.extensions.getByName("android")
+gradle.projectsEvaluated {
+    subprojects {
+        if (project.plugins.hasPlugin("com.android.library")) {
+            project.extensions.configure("android") {
+                val android = this
                 android.javaClass.getMethod("setCompileSdk", Int::class.java).invoke(android, 36)
-            } catch (_: Exception) {}
+            }
         }
     }
 }
