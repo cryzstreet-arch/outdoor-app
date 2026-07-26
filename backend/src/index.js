@@ -1,17 +1,33 @@
 require('dotenv').config({ path: require('path').join(__dirname, '..', '.env') });
 const express = require('express');
 const cors = require('cors');
+const helmet = require('helmet');
 const path = require('path');
 const http = require('http');
 const { Server } = require('socket.io');
 const routes = require('./routes');
+const analyticsRoutes = require('./routes/analytics');
+const analyticsMiddleware = require('./middleware/analyticsMiddleware');
+const { generalLimiter } = require('./middleware/rateLimit');
 const { startDiscovery, getLocalIP } = require('./discovery');
 
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server, { cors: { origin: process.env.ALLOWED_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'] } });
 
-app.use(cors({ origin: process.env.ALLOWED_ORIGINS?.split(',') || '*' }));
+const allowedOrigins = process.env.ALLOWED_ORIGINS?.split(',').filter(Boolean) || [];
+if (allowedOrigins.length === 0) {
+  console.error('WARNING: ALLOWED_ORIGINS no configurado. Usando localhost por defecto.');
+  allowedOrigins.push('http://localhost:5173', 'http://localhost:3000');
+}
+
+const io = new Server(server, { cors: { origin: allowedOrigins } });
+
+app.use(helmet({ contentSecurityPolicy: false }));
+app.use(cors({ origin: allowedOrigins }));
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
+app.use(generalLimiter);
+app.use(analyticsMiddleware);
 
 const jwt = require('jsonwebtoken');
 io.use((socket, next) => {
@@ -22,10 +38,10 @@ io.use((socket, next) => {
     next();
   } catch { next(new Error('Invalid token')); }
 });
-app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 
+app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));
 app.use('/api', routes);
+app.use('/api/analytics', analyticsRoutes);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

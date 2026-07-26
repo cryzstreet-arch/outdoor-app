@@ -6,7 +6,11 @@ import '../config/constants.dart';
 import '../providers/spot_provider.dart';
 import '../widgets/skeuomorphic_button.dart';
 import '../widgets/skeuomorphic_text_field.dart';
+import '../widgets/glass_panel.dart';
+import '../widgets/glass_app_bar.dart';
+import '../widgets/organic_pattern_painter.dart';
 import 'package:geolocator/geolocator.dart';
+import '../services/analytics_service.dart';
 
 class CreateSpotScreen extends StatefulWidget {
   const CreateSpotScreen({super.key});
@@ -36,6 +40,7 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService().trackScreen('create_spot');
     _initGps();
   }
 
@@ -71,28 +76,30 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      appBar: AppBar(
-        backgroundColor: AppColors.superficie,
-        elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.oscuro),
-        title: Text('Nuevo Spot',
-          style: TextStyle(color: AppColors.oscuro, fontSize: 18)),
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Form(
-          key: _formKey,
-          child: Column(
+      appBar: GlassAppBar(title: 'Nuevo Spot'),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors: [AppColors.fondo, AppColors.fondo],
+          ),
+        ),
+        child: Stack(
+          children: [
+            const Positioned.fill(child: OrganicPatternBackground()),
+            SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Form(
+                key: _formKey,
+                child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               GestureDetector(
                 onTap: _tomarFoto,
-                child: Container(
-                  height: 180, width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: AppColors.superficie,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
+                child: GlassPanel(
+                  borderRadius: 12,
+                  shadowEnabled: false,
                   child: _imagen != null
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(12),
@@ -180,7 +187,10 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
           ),
         ),
       ),
-    );
+      ],
+    ),
+  ),
+);
   }
 
   Widget _difChip(String label, Color color) {
@@ -188,16 +198,11 @@ class _CreateSpotScreenState extends State<CreateSpotScreen> {
     return Expanded(
       child: GestureDetector(
         onTap: () => setState(() => _dificultad = label),
-        child: Container(
+        child: GlassPanel(
+          opacity: selected ? 0.15 : 0.08,
+          borderRadius: 10,
+          shadowEnabled: false,
           padding: const EdgeInsets.symmetric(vertical: 12),
-          decoration: BoxDecoration(
-            color: selected ? color.withOpacity(0.15) : AppColors.superficie,
-            borderRadius: BorderRadius.circular(10),
-            border: Border.all(
-              color: selected ? color : Colors.transparent,
-              width: 2,
-            ),
-          ),
           child: Text(label.toUpperCase(),
             textAlign: TextAlign.center,
             style: TextStyle(

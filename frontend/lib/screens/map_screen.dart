@@ -10,8 +10,10 @@ import '../providers/spot_provider.dart';
 import '../providers/auth_provider.dart';
 import '../widgets/fog_painter.dart';
 import '../widgets/particle_overlay.dart';
+import '../widgets/glass_panel.dart';
 import '../config/category_themes.dart';
 import 'spot_detail_screen.dart';
+import '../services/analytics_service.dart';
 
 class MapScreen extends StatefulWidget {
   const MapScreen({super.key});
@@ -31,6 +33,7 @@ class _MapScreenState extends State<MapScreen> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService().trackScreen('map');
     _initGps();
     _loadNearbySpots();
   }
@@ -194,14 +197,10 @@ class _MapScreenState extends State<MapScreen> {
     return Positioned(
       top: MediaQuery.of(context).padding.top + 8,
       left: 16, right: 16,
-      child: Container(
+      child: GlassPanel(
+        blurIntensity: 16,
+        borderRadius: 12,
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-        decoration: BoxDecoration(
-          color: AppColors.fondo.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.1), blurRadius: 8)],
-        ),
         child: Row(children: [
           Icon(Icons.explore, color: AppColors.primario, size: 20),
           const SizedBox(width: 8),
@@ -231,14 +230,11 @@ class _MapScreenState extends State<MapScreen> {
       bottom: 100,
       child: GestureDetector(
         onTap: _centerOnUser,
-        child: Container(
+        child: GlassPanel(
+          blurIntensity: 12,
+          borderRadius: 30,
           padding: const EdgeInsets.all(12),
-          decoration: BoxDecoration(
-            color: AppColors.fondo.withOpacity(0.9),
-            shape: BoxShape.circle,
-            boxShadow: [BoxShadow(
-              color: Colors.black.withOpacity(0.15), blurRadius: 8)],
-          ),
+          shadowEnabled: true,
           child: Icon(Icons.gps_fixed, color: AppColors.primario, size: 24),
         ),
       ),
@@ -254,14 +250,10 @@ class _MapScreenState extends State<MapScreen> {
     return Positioned(
       bottom: 100,
       left: 16, right: 72,
-      child: Container(
+      child: GlassPanel(
+        blurIntensity: 16,
+        borderRadius: 12,
         padding: const EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          color: AppColors.fondo.withOpacity(0.9),
-          borderRadius: BorderRadius.circular(12),
-          boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.1), blurRadius: 8)],
-        ),
         child: Row(children: [
           Icon(Icons.location_on, color: AppColors.secundario, size: 18),
           const SizedBox(width: 8),

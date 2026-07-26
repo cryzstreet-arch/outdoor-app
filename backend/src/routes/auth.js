@@ -2,27 +2,17 @@ const express = require('express');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const db = require('../database');
+const { authLimiter } = require('../middleware/rateLimit');
+const { validate } = require('../middleware/validate');
 
 const router = express.Router();
 
-router.post('/register', (req, res) => {
+router.post('/register', authLimiter, validate('register'), (req, res) => {
   const { email, username, password } = req.body;
-
-  if (!email || !username || !password) {
-    return res.status(400).json({ error: 'Email, usuario y contraseña requeridos' });
-  }
-
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(email)) return res.status(400).json({ error: 'Email inválido' });
-  if (!/^[a-zA-Z0-9_]{3,20}$/.test(username)) return res.status(400).json({ error: 'Usuario: 3-20 caracteres, solo letras, números y _' });
-
-  if (password.length < 6) {
-    return res.status(400).json({ error: 'La contraseña debe tener al menos 6 caracteres' });
-  }
 
   const exists = db.prepare('SELECT id FROM usuarios WHERE email = ? OR username = ?').get(email, username);
   if (exists) {
-    return res.status(409).json({ error: 'El email o usuario ya está registrado' });
+    return res.status(409).json({ error: 'Datos ya registrados' });
   }
 
   const password_hash = bcrypt.hashSync(password, 10);
@@ -40,12 +30,8 @@ router.post('/register', (req, res) => {
   });
 });
 
-router.post('/login', (req, res) => {
+router.post('/login', authLimiter, validate('login'), (req, res) => {
   const { email, password } = req.body;
-
-  if (!email || !password) {
-    return res.status(400).json({ error: 'Email y contraseña requeridos' });
-  }
 
   const usuario = db.prepare('SELECT * FROM usuarios WHERE email = ?').get(email);
   if (!usuario || !bcrypt.compareSync(password, usuario.password_hash)) {

@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import '../config/constants.dart';
 import '../widgets/skeuomorphic_button.dart';
 import '../widgets/skeuomorphic_text_field.dart';
+import '../widgets/glass_panel.dart';
+import '../widgets/glass_app_bar.dart';
+import '../services/analytics_service.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -18,6 +21,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService().trackScreen('settings');
     _hostCtrl = TextEditingController(text: AppConfig.host);
     _portCtrl = TextEditingController(text: AppConfig.port.toString());
   }
@@ -33,13 +37,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      appBar: AppBar(
-        backgroundColor: AppColors.superficie,
-        elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.oscuro),
-        title: Text('Configuración del Servidor',
-          style: TextStyle(color: AppColors.oscuro, fontSize: 18)),
-      ),
+      appBar: GlassAppBar(title: 'Configuración del Servidor'),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Form(
@@ -48,12 +46,10 @@ class _SettingsScreenState extends State<SettingsScreen> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Center(
-                child: Container(
+                child: GlassPanel(
+                  blurIntensity: 12,
                   padding: const EdgeInsets.all(20),
-                  decoration: BoxDecoration(
-                    color: AppColors.superficie,
-                    shape: BoxShape.circle,
-                  ),
+                  shadowEnabled: false,
                   child: Icon(Icons.dns, size: 48, color: AppColors.primario),
                 ),
               ),
@@ -116,12 +112,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
                 ),
               ],
               const SizedBox(height: 32),
-              Container(
+              GlassPanel(
+                opacity: 0.1,
                 padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: AppColors.superficie.withOpacity(0.5),
-                  borderRadius: BorderRadius.circular(12),
-                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [

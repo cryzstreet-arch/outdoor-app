@@ -5,9 +5,13 @@ const multer = require('multer');
 const db = require('../database');
 const { authMiddleware } = require('../middleware/auth');
 const haversine = require('../utils/haversine');
+const { uploadLimiter } = require('../middleware/rateLimit');
+const { canCheckin, spotExists, deny } = require('../middleware/accessControl');
 
 const router = express.Router();
 fs.mkdirSync(path.join(__dirname, '..', '..', 'uploads'), { recursive: true });
+
+const ALLOWED_MIME = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
 
 const storage = multer.diskStorage({
   destination: path.join(__dirname, '..', '..', 'uploads'),
@@ -16,18 +20,39 @@ const storage = multer.diskStorage({
     cb(null, unique + path.extname(file.originalname));
   }
 });
-const upload = multer({ storage, limits: { fileSize: 10 * 1024 * 1024 } });
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 10 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    if (ALLOWED_MIME.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Tipo de archivo no permitido. Solo se aceptan imágenes JPEG, PNG, WebP y GIF.'));
+    }
+  }
+});
 
 router.post('/spots/:id/checkin', authMiddleware, (req, res) => {
-  const spot = db.prepare('SELECT * FROM spots WHERE id = ?').get(req.params.id);
+  const spotId = parseInt(req.params.id, 10);
+  if (isNaN(spotId)) {
+    return res.status(400).json({ error: 'spot_id debe ser un número entero' });
+  }
+
+  const check = canCheckin(req.userId, spotId);
+  if (!check.allowed) {
+    return deny(res, 429, 'Checkin en las últimas 24h');
+  }
+
+  const spot = db.prepare('SELECT * FROM spots WHERE id = ?').get(spotId);
   if (!spot) return res.status(404).json({ error: 'Spot no encontrado' });
 
-  const existing = db.prepare('SELECT id FROM checkins WHERE user_id = ? AND spot_id = ?').get(req.userId, req.params.id);
+  const existing = db.prepare('SELECT id FROM checkins WHERE user_id = ? AND spot_id = ?').get(req.userId, spotId);
   if (existing) {
     return res.status(409).json({ error: 'Ya has hecho check-in en este spot' });
   }
 
-  db.prepare('INSERT INTO checkins (user_id, spot_id) VALUES (?, ?)').run(req.userId, req.params.id);
+  db.prepare('INSERT INTO checkins (user_id, spot_id) VALUES (?, ?)').run(req.userId, spotId);
 
   let distancia = 0;
   if (spot.start_lat && spot.start_lng) {
@@ -63,15 +88,19 @@ router.post('/spots/:id/checkin', authMiddleware, (req, res) => {
   res.json({ estadisticas: updatedStats, logros_nuevos: logrosDesbloqueados });
 });
 
-router.post('/publicar', authMiddleware, upload.single('imagen'), (req, res) => {
+router.post('/publicar', authMiddleware, uploadLimiter, upload.single('imagen'), (req, res) => {
   const { spot_id, descripcion } = req.body;
 
-  if (!spot_id) {
-    return res.status(400).json({ error: 'spot_id requerido' });
+  const spotId = parseInt(spot_id, 10);
+  if (!spot_id || isNaN(spotId)) {
+    return res.status(400).json({ error: 'spot_id requerido y debe ser un número entero' });
   }
 
-  const spot = db.prepare('SELECT * FROM spots WHERE id = ?').get(spot_id);
-  if (!spot) return res.status(404).json({ error: 'Spot no encontrado' });
+  if (!spotExists(spotId)) {
+    return res.status(404).json({ error: 'Spot no encontrado' });
+  }
+
+  const spot = db.prepare('SELECT * FROM spots WHERE id = ?').get(spotId);
 
   if (!req.file) {
     return res.status(400).json({ error: 'Se requiere una foto para publicar' });
@@ -81,11 +110,11 @@ router.post('/publicar', authMiddleware, upload.single('imagen'), (req, res) => 
 
   const result = db.prepare(
     'INSERT INTO publicaciones (user_id, spot_id, imagen_url, descripcion) VALUES (?, ?, ?, ?)'
-  ).run(req.userId, spot_id, imagen_url, descripcion || '');
+  ).run(req.userId, spotId, imagen_url, descripcion || '');
 
   const esPrimerDescubridor = db.prepare(
     'SELECT id FROM publicaciones WHERE spot_id = ? ORDER BY created_at ASC LIMIT 1'
-  ).get(spot_id);
+  ).get(spotId);
 
   const logros = [];
   if (esPrimerDescubridor && esPrimerDescubridor.id === result.lastInsertRowid) {

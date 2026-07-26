@@ -57,10 +57,12 @@ class SpotProvider extends ChangeNotifier {
     notifyListeners();
 
     try {
-      final data = await _api.getSpot(id);
-      _currentSpot = Spot.fromJson(data);
-      final raw = await _api.getComentarios(id);
-      _comentarios = raw.map((e) => Map<String, dynamic>.from(e as Map)).toList();
+      final results = await Future.wait([
+        _api.getSpot(id),
+        _api.getComentarios(id),
+      ]);
+      _currentSpot = Spot.fromJson(results[0]);
+      _comentarios = (results[1] as List).map((e) => Map<String, dynamic>.from(e as Map)).toList();
     } catch (e) {
       _error = 'Error al cargar spot';
     }

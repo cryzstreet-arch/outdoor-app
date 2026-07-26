@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../config/constants.dart';
+import 'glass_panel.dart';
 
 class SkeuomorphicTextField extends StatelessWidget {
   final TextEditingController? controller;
@@ -32,22 +33,10 @@ class SkeuomorphicTextField extends StatelessWidget {
           ),
         ),
         const SizedBox(height: 6),
-        Container(
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(10),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.black.withOpacity(0.1),
-                offset: const Offset(2, 2),
-                blurRadius: 4,
-              ),
-              BoxShadow(
-                color: Colors.white.withOpacity(0.8),
-                offset: const Offset(-1, -1),
-                blurRadius: 2,
-              ),
-            ],
-          ),
+        GlassPanel(
+          borderRadius: 10,
+          opacity: 0.08,
+          blurIntensity: 12,
           child: TextFormField(
             controller: controller,
             obscureText: obscure,
@@ -57,7 +46,7 @@ class SkeuomorphicTextField extends StatelessWidget {
               hintText: hint,
               hintStyle: TextStyle(color: AppColors.textoSecundario.withOpacity(0.5)),
               filled: true,
-              fillColor: AppColors.fondo,
+              fillColor: Colors.transparent,
               prefixIcon: icon != null
                   ? Icon(icon, color: AppColors.secundario, size: 20)
                   : null,

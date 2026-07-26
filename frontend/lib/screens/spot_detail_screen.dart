@@ -9,7 +9,10 @@ import '../providers/auth_provider.dart';
 import '../widgets/skeuomorphic_button.dart';
 import '../widgets/skeuomorphic_text_field.dart';
 import '../widgets/particle_overlay.dart';
+import '../widgets/glass_panel.dart';
+import '../widgets/glass_app_bar.dart';
 import '../utils/page_transitions.dart';
+import '../services/analytics_service.dart';
 
 class SpotDetailScreen extends StatefulWidget {
   final int spotId;
@@ -26,6 +29,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService().trackScreen('spot_detail');
     context.read<SpotProvider>().loadSpotDetail(widget.spotId);
   }
 
@@ -42,14 +46,7 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      appBar: AppBar(
-        backgroundColor: AppColors.superficie,
-        elevation: 0,
-        iconTheme: IconThemeData(color: AppColors.oscuro),
-        title: Text(spot?.nombre ?? 'Detalle',
-          style: TextStyle(color: AppColors.oscuro, fontSize: 18),
-        ),
-      ),
+      appBar: GlassAppBar(title: spot?.nombre ?? 'Detalle'),
       body: spotProv.loading
           ? const Center(child: CircularProgressIndicator(color: AppColors.primario))
           : spot == null
@@ -92,12 +89,8 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   Widget _buildImage(Spot spot) {
     return Hero(
       tag: 'spot-img-${spot.id}',
-      child: Container(
-        height: 200, width: double.infinity,
-        decoration: BoxDecoration(
-          color: AppColors.superficie,
-          borderRadius: BorderRadius.circular(12),
-        ),
+      child: GlassPanel(
+        borderRadius: 12,
         child: ClipRRect(
           borderRadius: BorderRadius.circular(12),
           child: spot.imagenUrl != null
@@ -136,12 +129,10 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   }
 
   Widget _chip(String text, Color color) {
-    return Container(
+    return GlassPanel(
+      opacity: 0.08,
+      borderRadius: 10,
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(8),
-      ),
       child: Text(text.toUpperCase(), style: TextStyle(
         fontSize: 11, color: color, fontWeight: FontWeight.w700)),
     );
@@ -162,12 +153,9 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
   }
 
   Widget _buildStats(Spot spot) {
-    return Container(
+    return GlassPanel(
+      borderRadius: 12,
       padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: AppColors.superficie,
-        borderRadius: BorderRadius.circular(12),
-      ),
       child: Row(mainAxisAlignment: MainAxisAlignment.spaceAround, children: [
         _statCol(Icons.favorite_border, '${spot.totalLikes}', 'Likes'),
         _statCol(Icons.chat_bubble_outline, '${spot.totalComentarios}', 'Comentarios'),
@@ -255,12 +243,9 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
       const SizedBox(height: 12),
       Row(children: [
         Expanded(
-          child: Container(
-            decoration: BoxDecoration(
-              color: AppColors.fondo,
-              borderRadius: BorderRadius.circular(10),
-              border: Border.all(color: AppColors.superficie),
-            ),
+          child: GlassPanel(
+            opacity: 0.08,
+            borderRadius: 10,
             child: TextField(
               controller: _comentarioCtrl,
               decoration: InputDecoration(
@@ -288,13 +273,11 @@ class _SpotDetailScreenState extends State<SpotDetailScreen> {
 
   Widget _comentarioItem(dynamic cItem) {
     final c = cItem as Map<String, dynamic>;
-    return Container(
+    return GlassPanel(
+      opacity: 0.1,
+      borderRadius: 10,
       margin: const EdgeInsets.only(bottom: 8),
       padding: const EdgeInsets.all(12),
-      decoration: BoxDecoration(
-        color: AppColors.superficie.withOpacity(0.5),
-        borderRadius: BorderRadius.circular(10),
-      ),
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
         Row(children: [
           Text('@${c['username'] ?? "usuario"}',

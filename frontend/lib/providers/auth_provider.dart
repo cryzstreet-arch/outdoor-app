@@ -21,15 +21,22 @@ class AuthProvider extends ChangeNotifier {
     _token = prefs.getString('token');
     if (_token != null) {
       _api.setToken(_token);
-      try {
-        final data = await _api.getPerfil();
-        _user = User.fromJson(data);
-      } catch (_) {
-        _token = null;
-        await prefs.remove('token');
-      }
     }
     notifyListeners();
+  }
+
+  Future<void> fetchPerfil() async {
+    if (_token == null) return;
+    try {
+      final data = await _api.getPerfil();
+      _user = User.fromJson(data);
+      notifyListeners();
+    } catch (_) {
+      _token = null;
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.remove('token');
+      notifyListeners();
+    }
   }
 
   Future<bool> login(String email, String password) async {

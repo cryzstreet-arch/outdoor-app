@@ -3,9 +3,22 @@ import 'package:provider/provider.dart';
 import '../config/constants.dart';
 import '../providers/auth_provider.dart';
 import 'settings_screen.dart';
+import '../widgets/glass_panel.dart';
+import '../services/analytics_service.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
+
+  @override
+  State<ProfileScreen> createState() => _ProfileScreenState();
+}
+
+class _ProfileScreenState extends State<ProfileScreen> {
+  @override
+  void initState() {
+    super.initState();
+    AnalyticsService().trackScreen('profile');
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -18,18 +31,9 @@ class ProfileScreen extends StatelessWidget {
         child: Column(
           children: [
             const SizedBox(height: 20),
-            Container(
+            GlassPanel(
+              borderRadius: 100,
               padding: const EdgeInsets.all(4),
-              decoration: BoxDecoration(
-                shape: BoxShape.circle,
-                color: AppColors.superficie,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.1),
-                    blurRadius: 10, offset: const Offset(0, 4),
-                  ),
-                ],
-              ),
               child: CircleAvatar(
                 radius: 50,
                 backgroundColor: AppColors.primario.withOpacity(0.1),
@@ -46,13 +50,11 @@ class ProfileScreen extends StatelessWidget {
               style: TextStyle(fontSize: 14, color: AppColors.textoSecundario),
             ),
             if (user?.estadisticas?.primeActivo == true)
-              Container(
+              GlassPanel(
+                opacity: 0.15,
+                borderRadius: 20,
                 margin: const EdgeInsets.only(top: 8),
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-                decoration: BoxDecoration(
-                  color: AppColors.secundario.withOpacity(0.2),
-                  borderRadius: BorderRadius.circular(20),
-                ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
@@ -68,18 +70,8 @@ class ProfileScreen extends StatelessWidget {
                 ),
               ),
             const SizedBox(height: 24),
-            Container(
+            GlassPanel(
               padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: AppColors.superficie,
-                borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.06),
-                    blurRadius: 8, offset: const Offset(0, 3),
-                  ),
-                ],
-              ),
               child: Column(
                 children: [
                   Text('Estadísticas',
@@ -98,7 +90,7 @@ class ProfileScreen extends StatelessWidget {
                     ],
                   ),
                   const SizedBox(height: 16),
-                  const Divider(color: Color(0xFFD4C5A9)),
+                  Divider(color: AppColors.textoSecundario.withOpacity(0.3)),
                   const SizedBox(height: 12),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -172,12 +164,10 @@ class ProfileScreen extends StatelessWidget {
   Widget _difficultyBadge(String label, int count, Color color) {
     return Column(
       children: [
-        Container(
+        GlassPanel(
+          opacity: 0.08,
+          borderRadius: 10,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
-          decoration: BoxDecoration(
-            color: color.withOpacity(0.1),
-            borderRadius: BorderRadius.circular(10),
-          ),
           child: Text(label,
             style: TextStyle(fontSize: 12, color: color, fontWeight: FontWeight.w600),
           ),

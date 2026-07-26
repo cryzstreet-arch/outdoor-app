@@ -13,6 +13,9 @@ import '../widgets/shimmer_loading.dart';
 import '../utils/page_transitions.dart';
 import '../widgets/particle_overlay.dart';
 import '../config/category_themes.dart';
+import '../widgets/glass_panel.dart';
+import '../services/analytics_service.dart';
+import '../widgets/organic_pattern_painter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,6 +29,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+    AnalyticsService().trackScreen('home');
     final auth = context.read<AuthProvider>();
     final spotProv = context.read<SpotProvider>();
     spotProv.setToken(auth.token);
@@ -65,7 +69,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.fondo,
-      body: screens[_currentIndex],
+      body: Container(
+        decoration: BoxDecoration(gradient: AppColors.gradienteFondo),
+        child: Stack(children: [
+          const OrganicPatternBackground(),
+          screens[_currentIndex],
+        ]),
+      ),
       floatingActionButton: _currentIndex == 0
           ? FloatingActionButton(
               onPressed: () async {
@@ -79,14 +89,9 @@ class _HomeScreenState extends State<HomeScreen> {
               child: const Icon(Icons.add, color: Colors.white),
             )
           : null,
-      bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: AppColors.fondo,
-          border: Border(top: BorderSide(color: AppColors.superficie, width: 2)),
-          boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.1),
-            blurRadius: 10, offset: const Offset(0, -3))],
-        ),
+      bottomNavigationBar: GlassPanel(
+        blurIntensity: 16,
+        borderRadius: 0,
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
           onTap: (i) => setState(() => _currentIndex = i),
@@ -204,15 +209,10 @@ class _SpotCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(context,
         FadeScaleRoute(page: SpotDetailScreen(spotId: spot.id))),
-      child: Container(
+      child: GlassPanel(
+        blurIntensity: 16,
+        padding: EdgeInsets.zero,
         margin: const EdgeInsets.only(bottom: 16),
-        decoration: BoxDecoration(
-          color: AppColors.superficie,
-          borderRadius: BorderRadius.circular(16),
-          boxShadow: [BoxShadow(
-            color: Colors.black.withOpacity(0.08),
-            blurRadius: 10, offset: const Offset(0, 4))],
-        ),
         child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
           ClipRRect(
             borderRadius: const BorderRadius.vertical(top: Radius.circular(16)),
@@ -269,12 +269,10 @@ class _SpotCard extends StatelessWidget {
   }
 
   Widget _tag(String text, Color color) {
-    return Container(
+    return GlassPanel(
+      opacity: 0.08,
+      borderRadius: 6,
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-      decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
-        borderRadius: BorderRadius.circular(6),
-      ),
       child: Text(text.toUpperCase(), style: TextStyle(
         fontSize: 10, color: color, fontWeight: FontWeight.w600)),
     );

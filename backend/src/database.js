@@ -125,11 +125,29 @@ db.exec(`
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES usuarios(id)
   );
+
+  CREATE TABLE IF NOT EXISTS analytics (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    event_type TEXT NOT NULL,
+    event_name TEXT NOT NULL,
+    user_id INTEGER,
+    metadata TEXT DEFAULT '{}',
+    ip_address TEXT,
+    user_agent TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+  CREATE INDEX IF NOT EXISTS idx_analytics_event ON analytics(event_type, created_at);
+  CREATE INDEX IF NOT EXISTS idx_analytics_user ON analytics(user_id, created_at);
 `);
 
 const rootExists = db.prepare('SELECT id FROM usuarios WHERE username = ?').get('root');
 if (!rootExists) {
-  const hash = bcrypt.hashSync(process.env.ROOT_PASSWORD || 'cambiar-en-produccion-123', 10);
+  const rootPass = process.env.ROOT_PASSWORD;
+  if (!rootPass) {
+    console.error('ERROR: ROOT_PASSWORD no configurado en .env');
+    process.exit(1);
+  }
+  const hash = bcrypt.hashSync(rootPass, 10);
   db.prepare(
     'INSERT INTO usuarios (email, username, password_hash, es_admin) VALUES (?, ?, ?, ?)'
   ).run('root@admin', 'root', hash, 1);

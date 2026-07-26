@@ -15,16 +15,18 @@ class TileCacheProvider implements TileProvider {
 
   @override
   ImageProvider getImage(TileCoordinates coords, TileLayer options) {
-    final cached = _getCached(coords);
-    if (cached != null) return MemoryImage(cached);
-    _descargarYCachear(coords);
+    _getCached(coords).then((cached) {
+      if (cached == null) {
+        _descargarYCachear(coords);
+      }
+    });
     return _network.getImage(coords, options);
   }
 
-  Uint8List? _getCached(TileCoordinates coords) {
+  Future<Uint8List?> _getCached(TileCoordinates coords) async {
     final path = _tilePath(coords);
     final file = File(path);
-    if (file.existsSync()) return file.readAsBytesSync();
+    if (await file.exists()) return await file.readAsBytes();
     return null;
   }
 

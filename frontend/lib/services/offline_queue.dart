@@ -1,10 +1,16 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
 import 'api_service.dart';
+
+String _copyFileSync(List<String> args) {
+  File(args[0]).copySync(args[1]);
+  return args[1];
+}
 
 class QueuedItem {
   final int? id;
@@ -58,8 +64,7 @@ class OfflineQueue {
       final dir = await getApplicationDocumentsDirectory();
       final copia = File(p.join(dir.path, 'pending', '${DateTime.now().millisecondsSinceEpoch}_${p.basename(imagen.path)}'));
       await copia.parent.create(recursive: true);
-      await imagen.copy(copia.path);
-      imagenPath = copia.path;
+      imagenPath = await compute(_copyFileSync, [imagen.path, copia.path]);
     }
     await d.insert('cola', {
       'tipo': tipo,
