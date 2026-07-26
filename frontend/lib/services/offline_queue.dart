@@ -1,6 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
-import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
 import 'package:sqflite/sqflite.dart';
@@ -116,17 +116,18 @@ class OfflineQueue {
   }
 
   static void monitorear() {
-    Connectivity().onConnectivityChanged.listen((results) {
-      final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
-      if (result != ConnectivityResult.none) {
-        sincronizar();
-      }
+    Timer.periodic(const Duration(seconds: 30), (_) async {
+      if (await hayConexion()) { sincronizar(); }
     });
   }
 
   static Future<bool> hayConexion() async {
-    final results = await Connectivity().checkConnectivity();
-    final result = results.isNotEmpty ? results.first : ConnectivityResult.none;
-    return result != ConnectivityResult.none;
+    try {
+      final result = await InternetAddress.lookup('google.com')
+          .timeout(const Duration(seconds: 5));
+      return result.isNotEmpty && result[0].rawAddress.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
   }
 }
